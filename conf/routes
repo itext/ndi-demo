@@ -1,0 +1,52 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+#remove qr
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET     /heartbeat                com.itextpdf.controllers.HomeController.beat()
+GET     /                com.itextpdf.controllers.HomeController.index()
+
+#pages
+##login page
+GET    /login                    com.itextpdf.controllers.HomeController.appLogin(userId: String?="")
+
+GET    /logoff                    com.itextpdf.controllers.HomeController.appLogoff()
+
+#file upload form page
+GET    /upload                   com.itextpdf.controllers.HomeController.personalPage()
+GET    /files/tmpl               com.itextpdf.controllers.FileController.uploadTestDocument()
+#download document
+GET    /files/:id/download       com.itextpdf.controllers.FileController.download(id: String)
+
+#action route for an upload form
+POST   /files/upload             com.itextpdf.controllers.FileController.upload()
+
+
+GET    /files/:id/sign           com.itextpdf.controllers.FileController.signPage(id: String)
+
+
+
+
+#signing initialisation. Returns a signRef.
+POST    /ndi/sign                      com.itextpdf.controllers.SignController.signInit(fileRef: String, type: String)
+
+#challenge code by signRef
+POST    /ndi/sign/:signRef/challenge   com.itextpdf.controllers.SignController.challengeCode(signRef: String)
+
+# id of the output document.
+POST    /ndi/sign/:signRef/result    com.itextpdf.controllers.SignController.result(signRef: String)
+
+#service route serving NDI Api callbacks
+GET    /api/ndi/callback             com.itextpdf.controllers.SignController.signCallback()
+
+
+
+
+
+
+
+
+
+

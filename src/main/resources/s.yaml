@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  title: ndi-demo
+  version: '1.0'
+servers:
+  - url: 'http://localhost:9000'
+    description: ndi
+paths:
+  /api/sign:
+    post:
+      summary: Initialization of a signing operation
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./signInit-init-resp.v1.json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./signInit-init-req.v1.json
+      description: ''
+    parameters: []
+  '/api/sign/{signRef}/challenge/':
+    get:
+      summary: Challenge code
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: ./chall-cpde-rest.v1.json
+      parameters: []
+      description: Request of a challenge code for signing operation by signRef
+    parameters:
+      - schema:
+          type: string
+        name: signRef
+        in: path
+        required: true
+  '/api/sign/{signRef}/qr':
+    parameters:
+      - type: string
+        name: signRef
+        in: path
+        required: true
+    get:
+      summary: Qr code
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./qr-code-resp.v1.json
+      description: Available only for QR containers
+  '/api/sign/{signRef}/result':
+    parameters:
+      - type: string
+        name: signRef
+        in: path
+        required: true
+    get:
+      summary: Result
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./file-created.v1.json
+      description: Gettting a result of the signing operation
+  /api/files/upload:
+    post:
+      summary: File upload
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: ./file-created.v1.json
+      requestBody:
+        description: ''
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: 'Content-Type: multipart/form-data'
+      description: Uploading file to server.
+  '/files/{id}/download':
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: File download
+      tags: []
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: |
+                file as attachmecnt
+      description: Download a file by id. Returns file as attachment
+      requestBody: {}
+components:
+  schemas: {}
+  securitySchemes: {}
