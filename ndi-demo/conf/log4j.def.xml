@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender class="org.apache.log4j.ConsoleAppender" name="console">
+        <param value="System.out" name="Target"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param value="| def | %d | %-5p | %c{2} | %m%n" name="ConversionPattern"/>
+        </layout>
+    </appender>
+    <appender class="org.apache.log4j.RollingFileAppender" name="consoleOutput">
+        <param value="application.log" name="File"/>
+        <param value="4MB" name="maxFileSize"/>
+        <param value="5" name="maxBackupIndex"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param value="| def | %d{HH:mm:ss.SSS} | %-5p | %c{1} | %m%n " name="ConversionPattern"/>
+        </layout>
+    </appender>
+    <appender class="org.apache.log4j.RollingFileAppender" name="file">
+        <param value="admin.log" name="File"/>
+        <param value="4MB" name="maxFileSize"/>
+        <param value="5" name="maxBackupIndex"/>
+        <layout class="org.apache.log4j.PatternLayout">W
+            <param value="| def | %d{HH:mm:ss.SSS} | %-5p | %c{1} | %m%n " name="ConversionPattern"/>
+        </layout>
+    </appender>
+    <root>
+        <level value="DEBUG"/>
+        <appender-ref ref="console"/>
+        <appender-ref ref="consoleOutput"/>
+    </root>
+
+    <!--<logger name="be.ehealth.technicalconnector.ndiApi.sts">-->
+    <!--<level value="TRACE"/>-->
+    <!--</logger>-->
+</log4j:configuration>

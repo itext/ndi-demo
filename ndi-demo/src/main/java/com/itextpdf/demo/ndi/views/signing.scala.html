@@ -1,0 +1,238 @@
+@(documentName: String, ndiId: String, fileId: String)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signing</title>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+    <style>
+         * {
+    font-family: Arial, SANS-SERIF;
+    margin-top: 0;
+    padding: 0;
+}
+
+.card {
+    width: 420px;
+    /* min-height: 250px; */
+    /* margin-right: -300px; */
+    margin: auto;
+    text-align: center;
+    /* border: 1px solid gray; */
+    padding: 45px 40px;
+    background: white;
+    margin-top: 150px;
+    box-sizing: border-box;
+}
+
+body {
+    background: #bdbdbd;
+}
+h1, h2, h3, h4{
+font-weight: normal;
+text-align: left;
+}
+h1.header {
+    font-size: 30px;
+    text-align: center;
+    /* margin-top: 100px; */
+    position: absolute;
+    top: 80px;
+    width: 100%;
+    }
+h4 {
+    font-weight: normal;
+    font-size: 17px;
+    text-align: center;
+}
+.result-file{
+
+}
+.result-file p{
+    font-size: 17px;
+    margin-bottom: 0;
+}
+  .result-file p span,
+        .result-file p a,
+        {
+        display: inline-block;
+        }
+.card h1{
+font-size: 25px;
+}
+form{
+    text-align: left;
+    width: 300px;
+    margin: auto;
+    }
+form h3 {
+    font-weight: normal;
+    margin-bottom: 25px;
+    font-size: 20px;
+
+}
+form input{
+width: 100%;
+    height: 30px;
+    line-height: 30px;
+    font-size: 18px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+}
+form input[type="text"] {
+
+    padding: 0 5px;
+    line-height: 35px;
+    height: 38px;
+    border: 1px solid #ccc;
+}
+
+form input[type="file"] {
+    height: 35px;
+    line-height: 30px;
+    font-size: 16px;
+}
+form input[type="submit"] {
+    /* margin-top: 20px; */
+    background-color: orange;
+    border: 1px solid orange;
+    color: white;
+
+    font-weight: bold;
+
+    margin-bottom: 0;
+    line-height: 35px;
+    height: 38px;
+    font-size: 18px;
+}
+
+.challenge-code {
+    margin: 40px;
+}
+
+.challenge-code h1 {
+    font-size: 50px;
+    font-weight: normal;
+    text-align: center;
+}
+
+.challenge-code p {
+    font-size: 130%;
+    margin-bottom: 10px;
+}
+.qr-code{
+    width: 300px;
+    margin: 20px auto;
+    height: 300px;
+    border: 1px solid orange;
+}
+.qr-code img{
+width: 100%;
+height: auto;
+}
+.btns *{
+
+display: inline-block;
+    width: 47%;
+    height: 30px;
+}
+.btns input:first-of-type(){
+margin-right: 4%;
+}
+.btns{
+text-align: center;
+width: 100%;
+}
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+<h1 class="header">ITEXT+NDI demo</h1>
+<div class="card">
+    <h4>Signing of <strong>@documentName</strong> by NDISessionUser <strong>@ndiId</strong></h4>
+    <div class="qr-code" style="display: none;">
+
+    </div>
+
+    <div class="challenge-code" style="display:none; width: 300px;">
+        <p>Challenge code</p>
+        <h1></h1>
+    </div>
+    <div class="result-file" style="display: none;">
+        <p>
+            <span>Result:</span>
+        </p>
+    </div>
+    <div class="btns">
+        <input id="qr" type="button" value="QR code" />
+        <input id="pn" type="button" value="Push notification" />
+    </div>
+</div>
+
+<script>
+
+function qrCodePromise(init){
+
+                  $(".qr-code").append("<img src='"+init.qrCode+"' />").show();
+                   return init;
+
+}
+
+
+function challengeCodePromise(init){
+  return $.post(" /ndi/sign/"+init.signRef+"/challenge")
+        .then(function (result){
+                $(".qr-code").hide();
+                $('<h1>'+result.challengeCode+'</h1>').appendTo(".challenge-code");
+                $(".challenge-code").show();
+
+                return init.signRef;
+              })
+}
+function resultLink(signRef){
+  return $.post(" /ndi/sign/"+signRef+"/result")
+  			  .then(  function (fileId){
+          			       $(".challenge-code").remove();
+    					   $('<a href="/files/'+fileId+'/download">Download signed document</a>').appendTo(".result-file p");
+    					   $(".result-file").show();
+    });
+}
+
+function hideButtons(){
+$(".btns").hide();
+}
+
+$(document).ready(function(){
+$("#qr").click(function(){
+hideButtons();
+ $.post("/ndi/sign?fileRef=@fileId&type=QR")
+.then(qrCodePromise)
+.then(challengeCodePromise)
+.then(resultLink);
+return false;
+})
+$("#pn").click(function(){
+hideButtons();
+$.post("/ndi/sign?fileRef=@fileId&type=PN")
+.then(challengeCodePromise)
+.then(resultLink);
+return false;
+})
+
+})
+
+
+
+
+
+</script>
+</body>
+</html>
