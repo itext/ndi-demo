@@ -14,7 +14,6 @@ import com.itextpdf.adapters.ndi.signing.services.api.INonceGenerator;
 import com.itextpdf.adapters.ndi.signing.services.api.INotificationTokenGenerator;
 import com.itextpdf.demo.ndi.auth.AuthService;
 import com.itextpdf.demo.ndi.auth.IAuthService;
-import com.itextpdf.demo.ndi.client.config.NDIInstanceConfigAWS;
 import com.itextpdf.demo.ndi.providers.*;
 import com.itextpdf.demo.ndi.services.ISigningService;
 import com.itextpdf.demo.ndi.services.SigningService;
@@ -61,7 +60,7 @@ public class ApplicationModule extends AbstractModule {
 
         bind(NDIDocumentService.class).toProvider(NDIDocumentServiceProvider.class);
 
-        bind(INDIInstanceConfig.class).to(NDIInstanceConfigAWS.class);
+//        bind(INDIInstanceConfig.class).to(NDIInstanceConfigAWS.class);
         bind(IAuthService.class).to(AuthService.class);
         bind(IAuthApi.class).toProvider(NDIApiServiceProvider.class);
         bind(ISigningService.class).to(SigningService.class);

@@ -1,7 +1,7 @@
 package com.itextpdf.demo.ndi.controllers;
 
 import com.itextpdf.demo.ndi.auth.IAuthService;
-import com.itextpdf.adapters.ndi.models.PdfFile;
+import com.itextpdf.demo.ndi.file.PdfFile;
 import com.itextpdf.demo.ndi.file.FileService;
 import com.itextpdf.io.util.StreamUtil;
 import org.slf4j.Logger;

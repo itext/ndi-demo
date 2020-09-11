@@ -4,9 +4,7 @@ import com.itextpdf.adapters.ndi.signing.models.Type;
 
 public class InitCallParams {
 
-    /**
-     * The id_token of the authenticated NDI user
-     */
+    /**The id_token of the authenticated NDI user*/
     private final String userNdiId;
 
     private final String nonce;

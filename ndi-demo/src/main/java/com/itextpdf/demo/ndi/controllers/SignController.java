@@ -2,7 +2,7 @@ package com.itextpdf.demo.ndi.controllers;
 
 import com.itextpdf.demo.ndi.auth.IAuthService;
 import com.itextpdf.adapters.ndi.client.models.Token;
-import com.itextpdf.adapters.ndi.models.PdfFile;
+import com.itextpdf.demo.ndi.file.PdfFile;
 
 import com.itextpdf.adapters.ndi.signing.models.ContainerError;
 import com.itextpdf.adapters.ndi.signing.models.Type;

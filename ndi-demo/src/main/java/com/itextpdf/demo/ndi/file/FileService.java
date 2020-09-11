@@ -1,6 +1,5 @@
 package com.itextpdf.demo.ndi.file;
 
-import com.itextpdf.adapters.ndi.models.PdfFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

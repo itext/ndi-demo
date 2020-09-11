@@ -1,7 +1,5 @@
 package com.itextpdf.demo.ndi.file;
 
-import com.itextpdf.adapters.ndi.models.PdfFile;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.concurrent.ConcurrentHashMap;

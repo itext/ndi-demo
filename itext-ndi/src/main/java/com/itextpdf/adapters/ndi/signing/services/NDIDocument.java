@@ -1,6 +1,6 @@
 package com.itextpdf.adapters.ndi.signing.services;
 
-import com.itextpdf.adapters.ndi.signing.SigningStatus;
+import com.itextpdf.adapters.ndi.signing.models.SigningStatus;
 import com.itextpdf.adapters.ndi.signing.models.Type;
 import com.itextpdf.adapters.ndi.signing.models.ContainerError;
 
@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class NDIDocument {
 
+    /** Unique identifier of the document*/
     private final String signatureRef;
 
     /** Source document content*/
@@ -24,7 +25,7 @@ public class NDIDocument {
     private final String ndiHint;
 
 
-    /** the Base64 encoded Qr code  to be displayed. Null for the document of PN {@link Type}*/
+    /** the Base64 encoded Qr code  to be displayed. Null for the document of the PN {@link Type}*/
     private String qrCode;
 
     /** the signature field in the source document, that is being used  for the signature placement*/

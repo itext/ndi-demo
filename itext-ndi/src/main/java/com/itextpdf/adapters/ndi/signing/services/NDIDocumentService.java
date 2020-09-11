@@ -1,18 +1,21 @@
 package com.itextpdf.adapters.ndi.signing.services;
 
+import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
+import com.itextpdf.adapters.ndi.client.models.InitCallParams;
+import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
+import com.itextpdf.adapters.ndi.client.models.InitCallResult;
+import com.itextpdf.adapters.ndi.client.models.callback.*;
+import com.itextpdf.adapters.ndi.signing.models.SigningStatus;
 import com.itextpdf.adapters.ndi.signing.containers.PreSignContainer;
 import com.itextpdf.adapters.ndi.signing.containers.SetSignatureContainer;
 import com.itextpdf.adapters.ndi.signing.converters.QrCodeGenerator;
 import com.itextpdf.adapters.ndi.signing.models.ContainerError;
+import com.itextpdf.adapters.ndi.signing.models.ExpectedCallback;
+import com.itextpdf.adapters.ndi.signing.models.Type;
 import com.itextpdf.adapters.ndi.signing.services.api.IChainGenerator;
 import com.itextpdf.adapters.ndi.signing.services.api.IChallengeCodeGenerator;
 import com.itextpdf.adapters.ndi.signing.services.api.INonceGenerator;
-import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
-import com.itextpdf.adapters.ndi.client.models.*;
-import com.itextpdf.adapters.ndi.client.models.callback.*;
-import com.itextpdf.adapters.ndi.signing.SigningStatus;
-import com.itextpdf.adapters.ndi.signing.models.ExpectedCallback;
-import com.itextpdf.adapters.ndi.signing.models.Type;
 import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.signatures.*;
 import org.bouncycastle.util.encoders.Hex;
@@ -39,11 +42,12 @@ import static com.itextpdf.adapters.ndi.signing.models.Type.QR;
 /**
  * Signing a pdf document via NDI API can be done using this class.
  * <p>
- * From now, a signing using this module consists of 3 calls.
+ * For now, a signing using this module consists of 3 calls.
  * 1. Create a new NDIDocument. {@link NDIDocumentService#init}
- * 2. Update from the first callback message
+ * 2. Update NDIdocument using the first callback.
  * .{@link NDIDocumentService#updateFromCallback(NDIDocument, NdiCallbackMessage)}
- * 3. Update from the second message.
+ * 3. Update NDIdocument using the second callback.
+ * {@link NDIDocumentService#updateFromCallback(NDIDocument, NdiCallbackMessage)}
  */
 public class NDIDocumentService {
 
@@ -89,8 +93,16 @@ public class NDIDocumentService {
         return null;
     }
 
-    private CompletionStage<InitCallResult> initCall(String ndiHint, String aNonce, Type type) {
-        InitCallParams payload = new InitCallParams(ndiHint, aNonce, type);
+    /**
+     * Hits either PN or Qr first leg
+     *
+     * @param aNdiUserTokenId
+     * @param aNonce          nonce
+     * @param type            the type of Flow
+     * @return
+     */
+    private CompletionStage<InitCallResult> initCall(String aNdiUserTokenId, String aNonce, Type type) {
+        InitCallParams payload = new InitCallParams(aNdiUserTokenId, aNonce, type);
         switch (type) {
             case PN:
                 return ndiApi.firstLeg(payload);
@@ -103,7 +115,7 @@ public class NDIDocumentService {
 
 
     /**
-     * Initializes a new signing process for file.
+     * Initializes a new signing process.
      * <p>
      * Requests the creation of new signing session one of given {@link Type} on NDI API.
      *
@@ -111,28 +123,30 @@ public class NDIDocumentService {
      * @param aDocName        name of the document to be signed
      * @param userId          id of the user requesting the signing.
      * @param aFieldName      name of the signature`s field which will be used for NDI signature
-     * @param aNDIUserHint    user`s token id.
+     * @param aNDIUserTokenId user`s token id.
      * @param aNdiSigningType the type of NDI initialization
      * @return the new NDIDocument
      */
     public CompletionStage<NDIDocument> init(byte[] aContent, String aDocName,
                                              String userId, String aFieldName,
-                                             String aNDIUserHint, Type aNdiSigningType) {
+                                             String aNDIUserTokenId, Type aNdiSigningType) {
         String aNonce = nonceGenerator.generate();
 
-        CompletionStage<NDIDocument> flCall = this.initCall(aNDIUserHint, aNonce, aNdiSigningType)
-
+        CompletionStage<NDIDocument> flCall = this.initCall(aNDIUserTokenId, aNonce, aNdiSigningType)
                                                   .thenApply(response -> {
                                                       NDIDocument document = new NDIDocument(
                                                               response.getSignRef(), aContent, aDocName,
                                                               aFieldName, userId, response.getExpiresAt());
-                                                      if(QR.equals(aNdiSigningType)){
-                                                          String encodedQrCode = Optional.ofNullable(((InitCallQrResult)response).getQrCodeData())
-                                                                  .map(qrCodeGenerator::generatePNG)
-                                                                  .orElseThrow(()-> new IllegalAccessError("Qr code data cannot be empty"));
+                                                      if (QR.equals(aNdiSigningType)) {
+                                                          String encodedQrCode = Optional.ofNullable(
+                                                                  ((InitCallQrResult) response).getQrCodeData())
+                                                                                         .map(qrCodeGenerator::generatePNG)
+                                                                                         .orElseThrow(
+                                                                                                 () -> new IllegalAccessError(
+                                                                                                         "Qr code data cannot be empty"));
                                                           document.setQrCode(encodedQrCode);
                                                       }
-;
+                                                      ;
                                                       return document;
                                                   });
 
@@ -144,8 +158,7 @@ public class NDIDocumentService {
                                                                              .format(DateTimeFormatter.ofPattern(
                                                                                      "mm:ss")))));
         return flCall.thenApply(d -> {
-            d.setStatus(SigningStatus.INITIALIZED);
-            return d;
+            return changeStatus(d, SigningStatus.INITIALIZED);
         });
     }
 
@@ -159,7 +172,7 @@ public class NDIDocumentService {
     }
 
     /**
-     * Update given document by the data from given message.
+     * Updates the document by the data from the given message.
      *
      * @param aDocument to be updated
      * @param aMessage  the callback message
@@ -170,35 +183,11 @@ public class NDIDocumentService {
 
         if (aMessage instanceof CallbackFirstLegMessage) {
 
-            CompletionStage<NDIDocument> res = CompletableFuture.supplyAsync(() -> aDocument)
-                                                                .thenApply((d) -> this.setupCertificate(d,
-                                                                                                        (CallbackFirstLegMessage) aMessage))
-                                                                .thenCompose(this::prepareToDeferredSigning)
-                                                                .thenApply(d -> {
-                                                                    d.setStatus(SigningStatus.PREPARED_FOR_SIGNING);
-                                                                    return d;
-                                                                })
-                                                                .exceptionally(d -> {
-                                                                    aDocument.setStatus(SigningStatus.TERMINATED);
-                                                                    return aDocument;
-                                                                });
-            return res;
+            return applyFirstCallback(aDocument, (CallbackFirstLegMessage) aMessage);
         }
         //terminated states below
         if (aMessage instanceof CallbackSecondLegMessage) {
-            CompletionStage<NDIDocument> res = CompletableFuture.supplyAsync(() -> aDocument)
-                                                                .thenApply((d) -> this.completeSigning(d,
-                                                                                                       (CallbackSecondLegMessage) aMessage))
-                                                                .thenApply(this::addLTVToResult)
-                                                                .thenApply(d -> {
-                                                                    d.setStatus(SigningStatus.COMPLETED);
-                                                                    return d;
-                                                                })
-                                                                .exceptionally(d -> {
-                                                                    aDocument.setStatus(SigningStatus.TERMINATED);
-                                                                    return aDocument;
-                                                                });
-            return res;
+            return applySecondCallback(aDocument, (CallbackSecondLegMessage) aMessage);
 
         }
         if (aMessage instanceof CallbackErrorMessage) {
@@ -210,6 +199,34 @@ public class NDIDocumentService {
             aDocument.setStatus(SigningStatus.TERMINATED);
         }
         return CompletableFuture.completedFuture(aDocument);
+    }
+
+    private CompletionStage<NDIDocument> applySecondCallback(NDIDocument aDocument, CallbackSecondLegMessage aMessage) {
+        return CompletableFuture.supplyAsync(() -> aDocument)
+                                .thenApply((d) -> this.completeSigning(d,
+                                                                       aMessage))
+                                .thenApply(this::addLTVToResult)
+                                .thenApply(d -> changeStatus(d, SigningStatus.COMPLETED))
+                                .exceptionally(t -> changeStatus(aDocument, SigningStatus.TERMINATED));
+    }
+
+    private CompletionStage<NDIDocument> applyFirstCallback(NDIDocument aDocument, CallbackFirstLegMessage aMessage) {
+        return CompletableFuture.supplyAsync(() -> aDocument)
+                                .thenApply((d) -> this.setupCertificate(d, aMessage))
+                                .thenCompose(this::prepareToDeferredSigning)
+                                .thenApply(d -> changeStatus(d, SigningStatus.PREPARED_FOR_SIGNING))
+                                .exceptionally(t -> changeStatus(aDocument, SigningStatus.TERMINATED));
+    }
+
+    /**
+     * Changes status of NdiDocument
+     * @param aDocument to be updated
+     * @param status new signing status
+     * @return
+     */
+    private NDIDocument changeStatus(NDIDocument aDocument, SigningStatus status) {
+        aDocument.setStatus(status);
+        return aDocument;
     }
 
     private NDIDocument setupCertificate(NDIDocument aDocument, CallbackFirstLegMessage message) {
@@ -226,8 +243,7 @@ public class NDIDocumentService {
     private List<byte[]> getOCSP(Certificate[] chain) {
         OcspClientBouncyCastle ocspClient = new OcspClientBouncyCastle(null);
         return IntStream.range(0, chain.length - 1)
-                        .mapToObj(j -> ocspClient.getEncoded((X509Certificate) chain[j],
-                                                             (X509Certificate) chain[j + 1], null))
+                        .mapToObj(j -> ocspClient.getEncoded((X509Certificate) chain[j], (X509Certificate) chain[j + 1], null))
                         .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
@@ -375,13 +391,13 @@ public class NDIDocumentService {
         return ndiApi.secondLeg(request)
                      .thenAccept((v) -> registerInValidator(aDocument, aNonce))
                      .exceptionally(t -> {
-                            logger.error(t.getMessage());
-                            ContainerError error = new ContainerError();
-                            error.setError(ErrorTypes.UNRECOGNIZED_REASON.getValue());
-                            error.setErrorDescription(String.format("Second leg error: %s", t.getMessage()));
-                            aDocument.setError(error);
-                            throw new RuntimeException(t);
-                        });
+                         logger.error(t.getMessage());
+                         ContainerError error = new ContainerError();
+                         error.setError(ErrorTypes.UNRECOGNIZED_REASON.getValue());
+                         error.setErrorDescription(String.format("Second leg error: %s", t.getMessage()));
+                         aDocument.setError(error);
+                         throw new RuntimeException(t);
+                     });
     }
 
     private void registerInValidator(NDIDocument aDocument, String aNonce) {

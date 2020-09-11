@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.models;
+package com.itextpdf.demo.ndi.file;
 
 import java.util.UUID;
 

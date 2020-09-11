@@ -3,7 +3,7 @@ package com.itextpdf.demo.ndi.services;
 import com.codepoetics.ambivalence.Either;
 import com.itextpdf.adapters.ndi.client.models.Token;
 import com.itextpdf.adapters.ndi.signing.models.ContainerError;
-import com.itextpdf.adapters.ndi.models.PdfFile;
+import com.itextpdf.demo.ndi.file.PdfFile;
 import com.itextpdf.adapters.ndi.signing.models.InitializationResult;
 import com.itextpdf.adapters.ndi.signing.models.PresignResult;
 import com.itextpdf.adapters.ndi.signing.models.Type;
