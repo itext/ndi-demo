@@ -1,7 +1,6 @@
 package com.itextpdf.demo.ndi.controllers;
 
 import com.google.common.base.Strings;
-
 import com.itextpdf.demo.ndi.auth.IAuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +8,12 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -69,6 +73,24 @@ public class HomeController extends Controller {
             return redirect(com.itextpdf.demo.ndi.controllers.routes.HomeController.personalPage());
         } else {
             return redirect(com.itextpdf.demo.ndi.controllers.routes.HomeController.appLogin(null));
+        }
+    }
+
+    public Result links(String alias) {
+        Map<String, String> aliases = new HashMap<>();
+
+        Properties prop = new Properties();
+        String     file = "urls.properties";
+        try (InputStream stream = getClass().getResourceAsStream(file)) {
+            prop.load(stream);
+            return prop.stringPropertyNames()
+                       .stream()
+                       .filter(n -> n.equals(alias.trim()))
+                       .findFirst()
+                       .map(s -> redirect(prop.getProperty(s)))
+                       .orElseGet(() -> badRequest("alias " + alias + " is not found"));
+        } catch (IOException e) {
+            return internalServerError(e.getMessage());
         }
     }
 }

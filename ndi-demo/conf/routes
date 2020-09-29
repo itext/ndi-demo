@@ -8,6 +8,10 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 GET     /heartbeat                com.itextpdf.demo.ndi.controllers.HomeController.beat()
 GET     /                com.itextpdf.demo.ndi.controllers.HomeController.index()
 
+#links
+GET /links/:alias   com.itextpdf.demo.ndi.controllers.HomeController.links(alias: String)
+
+
 #pages
 ##login page
 GET    /login                    com.itextpdf.demo.ndi.controllers.HomeController.appLogin(userId: String?="")
@@ -40,6 +44,8 @@ POST    /ndi/sign/:signRef/result    com.itextpdf.demo.ndi.controllers.SignContr
 
 #service route serving NDI Api callbacks
 GET    /api/ndi/callback             com.itextpdf.demo.ndi.controllers.SignController.signCallback()
+
+
 
 
 
