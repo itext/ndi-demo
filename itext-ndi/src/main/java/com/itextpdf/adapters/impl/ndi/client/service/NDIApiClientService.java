@@ -12,6 +12,7 @@ import com.itextpdf.adapters.impl.ndi.client.models.QRTriggerQueryParms;
 import com.itextpdf.adapters.impl.ndi.client.models.QRTriggerResponse;
 import com.itextpdf.adapters.ndi.client.IWebClient;
 import com.itextpdf.adapters.ndi.client.api.IAuthApi;
+
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
 import com.itextpdf.adapters.ndi.client.models.*;

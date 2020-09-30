@@ -243,6 +243,7 @@ public class NDIDocumentService {
                     .ifPresent(pdfSigner::setFieldName);
 
             //todo setup appearance
+            //todo change estimated size
 
             PdfName          filter        = PdfName.Adobe_PPKLite;
             PdfName          subFilter     = PdfName.Adbe_pkcs7_detached;

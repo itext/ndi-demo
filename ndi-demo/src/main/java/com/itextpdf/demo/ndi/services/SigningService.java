@@ -99,7 +99,7 @@ public class SigningService implements ISigningService {
             } catch (CallbackValidationException e) {
                 logger.error(e.getMessage());
             }
-            ;
+
             NdiDocumentWrapper wrapper = getWrapperOrThrow(data.getSignRef());
             CompletableFuture.runAsync(() -> wrapper.updateFromCallback(data));
             return CompletableFuture.completedFuture(null);

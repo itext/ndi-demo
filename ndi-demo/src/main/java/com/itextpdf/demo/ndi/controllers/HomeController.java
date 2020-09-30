@@ -76,12 +76,15 @@ public class HomeController extends Controller {
         }
     }
 
+    /**
+     * Short links for useful urls
+     * @param alias
+     * @return
+     */
     public Result links(String alias) {
-        Map<String, String> aliases = new HashMap<>();
-
         Properties prop = new Properties();
         String     file = "urls.properties";
-        try (InputStream stream = getClass().getResourceAsStream(file)) {
+        try (InputStream stream = getClass().getResourceAsStream("/"+file)) {
             prop.load(stream);
             return prop.stringPropertyNames()
                        .stream()
