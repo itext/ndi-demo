@@ -180,9 +180,7 @@ public class NDIDocumentService {
      */
     public CompletionStage<NDIDocument> updateFromCallback(NDIDocument aDocument, NdiCallbackMessage aMessage) {
         logger.info("callback of type: " + aMessage.getClass());
-
         if (aMessage instanceof CallbackFirstLegMessage) {
-
             return applyFirstCallback(aDocument, (CallbackFirstLegMessage) aMessage);
         }
         //terminated states below
@@ -203,8 +201,7 @@ public class NDIDocumentService {
 
     private CompletionStage<NDIDocument> applySecondCallback(NDIDocument aDocument, CallbackSecondLegMessage aMessage) {
         return CompletableFuture.supplyAsync(() -> aDocument)
-                                .thenApply((d) -> this.completeSigning(d,
-                                                                       aMessage))
+                                .thenApply((d) -> this.completeSigning(d, aMessage))
                                 .thenApply(this::addLTVToResult)
                                 .thenApply(d -> changeStatus(d, SigningStatus.COMPLETED))
                                 .exceptionally(t -> changeStatus(aDocument, SigningStatus.TERMINATED));
@@ -410,7 +407,7 @@ public class NDIDocumentService {
     private void addLtv(InputStream is, OutputStream outputStream) {
         try {
             PdfReader reader = new PdfReader(is);
-            PdfDocument pdfDoc = new PdfDocument(reader, new PdfWriter(outputStream),
+            PdfDocument pdfDoc = new PdfDocument(new PdfReader(is), new PdfWriter(outputStream),
                                                  new StampingProperties().useAppendMode());
 
             LtvVerification v             = new LtvVerification(pdfDoc);
