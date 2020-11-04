@@ -1,12 +1,13 @@
 package com.itextpdf.demo.ndi.providers;
 
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
-import com.itextpdf.adapters.ndi.signing.converters.QrCodeGenerator;
-import com.itextpdf.adapters.ndi.signing.services.CallbackValidator;
-import com.itextpdf.adapters.ndi.signing.services.NDIDocumentService;
+import com.itextpdf.adapters.ndi.impl.signing.services.converters.QrCodeGenerator;
+import com.itextpdf.adapters.ndi.impl.signing.services.CallbackValidator;
+import com.itextpdf.adapters.ndi.impl.signing.services.NDIDocumentService;
 import com.itextpdf.adapters.ndi.signing.services.api.IChainGenerator;
 import com.itextpdf.adapters.ndi.signing.services.api.IChallengeCodeGenerator;
 import com.itextpdf.adapters.ndi.signing.services.api.INonceGenerator;
+import com.itextpdf.signatures.IOcspClient;
 import com.itextpdf.signatures.ITSAClient;
 
 import javax.inject.Inject;
@@ -31,6 +32,8 @@ public class NDIDocumentServiceProvider implements Provider<NDIDocumentService> 
 
     private final CallbackValidator callbackValidator;
 
+    private final IOcspClient ocspClient;
+
     @Inject
     public NDIDocumentServiceProvider(IHssApiClient ndiClient,
                                       IChallengeCodeGenerator codeGenerator,
@@ -38,7 +41,8 @@ public class NDIDocumentServiceProvider implements Provider<NDIDocumentService> 
                                       ITSAClient tsaClient,
                                       IChainGenerator chainGenerator,
                                       QrCodeGenerator qrCodeGenerator,
-                                      CallbackValidator callbackValidator) {
+                                      CallbackValidator callbackValidator,
+                                      IOcspClient ocspClient) {
         this.ndiClient = ndiClient;
         this.codeGenerator = codeGenerator;
         this.nonceGenerator = nonceGenerator;
@@ -46,11 +50,12 @@ public class NDIDocumentServiceProvider implements Provider<NDIDocumentService> 
         this.chainGenerator = chainGenerator;
         this.qrCodeGenerator = qrCodeGenerator;
         this.callbackValidator = callbackValidator;
+        this.ocspClient = ocspClient;
     }
 
     @Override
     public NDIDocumentService get() {
         return new NDIDocumentService(ndiClient, codeGenerator, nonceGenerator, tsaClient,
-                                      chainGenerator, qrCodeGenerator, callbackValidator);
+                                      ocspClient, chainGenerator, qrCodeGenerator, callbackValidator);
     }
 }

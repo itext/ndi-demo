@@ -7,8 +7,9 @@ import play.libs.ws.WSClient;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
-
+@Singleton
 public class WSClientForNDIProvider implements Provider<NDIClientWSImpl> {
 
 
