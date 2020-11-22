@@ -1,24 +1,15 @@
 package com.itextpdf.demo.ndi.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.itextpdf.adapters.impl.ndi.client.models.PNTriggerRequest;
-import com.itextpdf.adapters.impl.ndi.client.models.PNTriggerResponse;
-import com.itextpdf.adapters.impl.ndi.client.models.QRTriggerQueryParms;
-import com.itextpdf.adapters.impl.ndi.client.models.QRTriggerResponse;
-import com.itextpdf.adapters.ndi.client.models.DILoginParams;
-import com.itextpdf.adapters.ndi.client.models.Token;
+import com.itextpdf.adapters.ndi.impl.client.converters.ApiModelsConverter;
+import com.itextpdf.adapters.ndi.impl.client.models.HashSigningRequest;
+import com.itextpdf.adapters.ndi.impl.client.models.InitCallQrResult;
+import com.itextpdf.adapters.ndi.impl.client.models.QRTriggerQueryParms;
+import com.itextpdf.adapters.ndi.impl.client.models.QRTriggerResponse;
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
-import com.itextpdf.adapters.ndi.client.api.IAuthApi;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
-import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
-import com.itextpdf.adapters.ndi.client.models.InitCallParams;
-import com.itextpdf.adapters.ndi.client.models.InitCallResult;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
 import com.itextpdf.adapters.ndi.signing.services.api.INotificationTokenGenerator;
-import com.itextpdf.adapters.impl.ndi.client.converters.TokenConverter;
-import com.itextpdf.adapters.ndi.client.models.DILoginRequest;
-import com.itextpdf.adapters.ndi.client.models.TokenResponse;
-import com.itextpdf.demo.ndi.client.converters.NdiClientModelsConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -28,12 +19,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-@Singleton
-public class NDIClientWSImpl implements IHssApiClient, IAuthApi {
+
+public class NDIClientWSImpl implements IHssApiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NDIClientWSImpl.class);
 
@@ -54,10 +44,7 @@ public class NDIClientWSImpl implements IHssApiClient, IAuthApi {
      */
     private WSClient client;
 
-    private final NdiClientModelsConverter converter = new NdiClientModelsConverter();
-
-    private final TokenConverter tokenConverter = new TokenConverter();
-
+    private final ApiModelsConverter converter = new ApiModelsConverter();
 
     @Inject
     public NDIClientWSImpl(INDIInstanceConfig config, WSClient client, INotificationTokenGenerator tokenProvider) {
@@ -67,33 +54,10 @@ public class NDIClientWSImpl implements IHssApiClient, IAuthApi {
     }
 
     @Override
-    public CompletionStage<InitCallResult> firstLeg(InitCallParams params) {
+    public CompletionStage<InitCallQrResult> firstLegQr(String aNonce) {
 
-        PNTriggerRequest request = converter.toPNRequest(params, tokenProvider.getToken());
-        JsonNode         node    = Json.toJson(request);
-        logger.debug("first leg: url - " + IHssApiClient.PN_TRIGGER_ENDPOINT);
-        logger.debug("data: " + node.toString());
-
-        return post(PN_TRIGGER_ENDPOINT, node)
-                .thenApply(r -> {
-                    if (this.hasErrors(r)) {
-                        logger.error(String.format("First leg. Error message received. Code %d info: %s",
-                                                   r.getStatus(),
-                                                   r.getBody()));
-                        throw new NDIServiceException("First leg error " + r.toString());
-                    }
-                    return Json.fromJson(r.asJson(), PNTriggerResponse.class);
-                })
-                .thenApply(converter::toResult)
-                .toCompletableFuture();
-    }
-
-
-    @Override
-    public CompletionStage<InitCallResult> firstLegQr(InitCallParams params) {
-
-        QRTriggerQueryParms requestParams = converter.toQRQueryParam(params, ndiConfig.getClientId(),
-                                                                     tokenProvider.getToken());
+        QRTriggerQueryParms requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
+                                                                     tokenProvider.getToken(), aNonce);
         WSRequest wsRequest = client.url(QR_AUTH_ENDPOINT)
                                     .setAuth(ndiConfig.getClientId(), ndiConfig.getClientSecret())
                                     .setQueryParameter("client_id", requestParams.getClientId())
@@ -143,29 +107,6 @@ public class NDIClientWSImpl implements IHssApiClient, IAuthApi {
 
     private boolean hasErrors(WSResponse data) {
         return Http.Status.OK != data.getStatus() && Http.Status.CREATED != data.getStatus();
-    }
-
-
-    //parse error
-    //{"error":"invalid_request","error_description":"Error: Failed to obtain OC
-    // SP response: 502"}
-    @Override
-    public CompletionStage<Token> loginDi(DILoginParams loginParams) {
-        String url = DI_LOGIN_URL;
-        DILoginRequest request = converter.createLoginRequest(loginParams, ndiConfig.getClientId(),
-                                                              ndiConfig.getClientSecret());
-        JsonNode json = Json.toJson(request);
-        logger.info("di-auth: url - " + url);
-        logger.info("data - " + json.toString());
-        return post(url, json)
-                .thenApply(r -> {
-                    logger.info(r.getBody());
-                    logger.info("st:" + r.getStatus());
-                    if (r.getStatus() != 200 && r.getStatus() != 201) {
-                        throw new RuntimeException("Incorrect response from NDI server.");
-                    }
-                    return Json.fromJson(r.asJson(), TokenResponse.class);
-                }).thenApply(tokenConverter::fromResponse);
     }
 
 

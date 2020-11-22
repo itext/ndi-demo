@@ -1,6 +1,6 @@
 package com.itextpdf.demo.ndi.providers;
 
-import com.itextpdf.adapters.impl.ndi.signing.services.NonceGenerator;
+import com.itextpdf.adapters.ndi.impl.signing.services.NonceGenerator;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;

@@ -20,30 +20,30 @@ GET    /logoff                    com.itextpdf.demo.ndi.controllers.HomeControll
 
 #file upload form page
 GET    /upload                   com.itextpdf.demo.ndi.controllers.HomeController.personalPage()
-GET    /files/tmpl               com.itextpdf.demo.ndi.controllers.FileController.uploadTestDocument()
+GET    /files/tmpl               com.itextpdf.demo.ndi.file.FileController.uploadTestDocument()
 #download document
-GET    /files/:id/download       com.itextpdf.demo.ndi.controllers.FileController.download(id: String)
+GET    /files/:id/download       com.itextpdf.demo.ndi.file.FileController.download(id: String)
 
 #action route for an upload form
-POST   /files/upload             com.itextpdf.demo.ndi.controllers.FileController.upload()
+POST   /files/upload             com.itextpdf.demo.ndi.file.FileController.upload()
 
 
-GET    /files/:id/sign           com.itextpdf.demo.ndi.controllers.FileController.signPage(id: String)
+GET    /files/:id/sign           com.itextpdf.demo.ndi.file.FileController.signPage(id: String)
 
 
 
 
 #signing initialisation. Returns a signRef.
-POST    /ndi/sign                      com.itextpdf.demo.ndi.controllers.SignController.signInit(fileRef: String, type: String)
+POST    /ndi/sign                      com.itextpdf.demo.ndi.sign.SignController.signInit(fileRef: String)
 
 #challenge code by signRef
-POST    /ndi/sign/:signRef/challenge   com.itextpdf.demo.ndi.controllers.SignController.challengeCode(signRef: String)
+POST    /ndi/sign/:signRef/challenge   com.itextpdf.demo.ndi.sign.SignController.challengeCode(signRef: String)
 
 # id of the output document.
-POST    /ndi/sign/:signRef/result    com.itextpdf.demo.ndi.controllers.SignController.result(signRef: String)
+POST    /ndi/sign/:signRef/result    com.itextpdf.demo.ndi.sign.SignController.result(signRef: String)
 
 #service route serving NDI Api callbacks
-GET    /api/ndi/callback             com.itextpdf.demo.ndi.controllers.SignController.signCallback()
+GET    /api/ndi/callback             com.itextpdf.demo.ndi.sign.SignController.signCallback()
 
 
 
