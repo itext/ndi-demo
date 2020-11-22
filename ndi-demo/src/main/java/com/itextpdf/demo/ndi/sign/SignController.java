@@ -1,6 +1,6 @@
 package com.itextpdf.demo.ndi.sign;
 
-import com.itextpdf.adapters.ndi.impl.signing.services.models.ContainerError;
+import com.itextpdf.adapters.ndi.signing.models.ContainerError;
 import com.itextpdf.demo.ndi.auth.IAuthService;
 import com.itextpdf.demo.ndi.files.FileService;
 import com.itextpdf.demo.ndi.files.PdfFile;

@@ -128,7 +128,7 @@ form input[type="submit"] {
 <h1 class="header">ITEXT+NDI demo</h1>
 <div class="card">
 
-@helper.form(action = com.itextpdf.demo.ndi.controllers.routes.FileController.upload, 'enctype -> "multipart/form-data") {
+@helper.form(action = com.itextpdf.demo.ndi.files.routes.FileController.upload, 'enctype -> "multipart/form-data") {
     <h3>Please choose a file</h3>
     @if(!message.isEmpty){
     <div class="error">@message</div>

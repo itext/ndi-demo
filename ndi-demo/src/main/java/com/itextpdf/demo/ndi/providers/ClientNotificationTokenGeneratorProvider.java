@@ -1,8 +1,8 @@
 package com.itextpdf.demo.ndi.providers;
 
-import com.itextpdf.adapters.ndi.impl.signing.services.ClientNotificationTokenGenerator;
+import com.itextpdf.adapters.ndi.signing.ClientNotificationTokenGenerator;
 
-import com.itextpdf.adapters.ndi.signing.services.api.INotificationTokenGenerator;
+import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;

@@ -2,10 +2,10 @@ package com.itextpdf.demo.ndi.sign.converters;
 
 import com.codepoetics.ambivalence.Either;
 import com.itextpdf.demo.ndi.files.PdfFile;
-import com.itextpdf.adapters.ndi.impl.signing.services.models.PresignResult;
-import com.itextpdf.adapters.ndi.impl.signing.services.models.ContainerError;
-import com.itextpdf.adapters.ndi.impl.signing.services.models.InitializationResult;
-import com.itextpdf.adapters.ndi.impl.signing.services.NDIDocument;
+import com.itextpdf.demo.ndi.sign.models.PresignResult;
+import com.itextpdf.adapters.ndi.signing.models.ContainerError;
+import com.itextpdf.demo.ndi.sign.models.InitializationResult;
+import com.itextpdf.adapters.ndi.signing.NDIDocument;
 
 import java.util.Optional;
 

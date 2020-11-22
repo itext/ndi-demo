@@ -1,7 +1,7 @@
 package com.itextpdf.demo.ndi.providers;
 
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
-import com.itextpdf.adapters.ndi.signing.services.api.INotificationTokenGenerator;
+import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
 import com.itextpdf.demo.ndi.client.NDIClientWSImpl;
 import play.libs.ws.WSClient;
 

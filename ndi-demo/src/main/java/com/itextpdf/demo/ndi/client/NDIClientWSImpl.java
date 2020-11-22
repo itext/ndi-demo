@@ -1,15 +1,15 @@
 package com.itextpdf.demo.ndi.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.itextpdf.adapters.ndi.impl.client.converters.ApiModelsConverter;
-import com.itextpdf.adapters.ndi.impl.client.models.HashSigningRequest;
-import com.itextpdf.adapters.ndi.impl.client.models.InitCallQrResult;
-import com.itextpdf.adapters.ndi.impl.client.models.QRTriggerQueryParms;
-import com.itextpdf.adapters.ndi.impl.client.models.QRTriggerResponse;
+import com.itextpdf.adapters.ndi.client.converters.ApiModelsConverter;
+import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
+import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParms;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
-import com.itextpdf.adapters.ndi.signing.services.api.INotificationTokenGenerator;
+import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -22,14 +22,12 @@ import javax.inject.Inject;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-
+/** Ndi client implemetation which is based on WSClient */
 public class NDIClientWSImpl implements IHssApiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NDIClientWSImpl.class);
 
-    /**
-     * Json content type
-     */
+    /**Json content type */
     private static final String jsonContentType = "application/json";
 
     private final INotificationTokenGenerator tokenProvider;
@@ -54,7 +52,7 @@ public class NDIClientWSImpl implements IHssApiClient {
     }
 
     @Override
-    public CompletionStage<InitCallQrResult> firstLegQr(String aNonce) {
+    public CompletionStage<InitCallQrResult> firstLeg(String aNonce) {
 
         QRTriggerQueryParms requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
                                                                      tokenProvider.getToken(), aNonce);

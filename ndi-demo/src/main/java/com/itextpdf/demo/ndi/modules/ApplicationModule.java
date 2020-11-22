@@ -2,17 +2,17 @@ package com.itextpdf.demo.ndi.modules;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.itextpdf.adapters.ndi.impl.client.SimpleWebClient;
-import com.itextpdf.adapters.ndi.client.IWebClient;
+import com.itextpdf.adapters.ndi.client.http.SimpleHttpClient;
+import com.itextpdf.adapters.ndi.client.http.IHttpClient;
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
-import com.itextpdf.adapters.ndi.impl.config.NDIInstanceConfig;
-import com.itextpdf.adapters.ndi.impl.signing.services.CallbackValidator;
-import com.itextpdf.adapters.ndi.impl.signing.services.NDIDocumentService;
-import com.itextpdf.adapters.ndi.signing.services.api.IChainGenerator;
-import com.itextpdf.adapters.ndi.signing.services.api.IChallengeCodeGenerator;
-import com.itextpdf.adapters.ndi.signing.services.api.INonceGenerator;
-import com.itextpdf.adapters.ndi.signing.services.api.INotificationTokenGenerator;
+import com.itextpdf.adapters.ndi.config.NDIInstanceConfig;
+import com.itextpdf.adapters.ndi.signing.CallbackValidator;
+import com.itextpdf.adapters.ndi.signing.NDIDocumentService;
+import com.itextpdf.adapters.ndi.signing.api.IChainGenerator;
+import com.itextpdf.adapters.ndi.signing.api.IChallengeCodeGenerator;
+import com.itextpdf.adapters.ndi.signing.api.INonceGenerator;
+import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
 import com.itextpdf.demo.ndi.auth.IAuthService;
 import com.itextpdf.demo.ndi.auth.LocalAuthService;
 import com.itextpdf.demo.ndi.exceptions.ConfigurationError;
@@ -51,7 +51,7 @@ public class ApplicationModule extends AbstractModule {
         System.out.println(configuration.getString("logger.config"));
 
         bind(INDIInstanceConfig.class).to(NDIInstanceConfig.class);
-        bind(IWebClient.class).to(SimpleWebClient.class).asEagerSingleton();
+        bind(IHttpClient.class).to(SimpleHttpClient.class).asEagerSingleton();
         bind(IHssApiClient.class).toProvider(NDIApiServiceProvider.class);
 
         bind(CallbackValidator.class).toProvider(CallbackValidatorProvider.class);

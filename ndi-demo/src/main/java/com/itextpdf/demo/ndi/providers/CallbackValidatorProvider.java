@@ -1,6 +1,6 @@
 package com.itextpdf.demo.ndi.providers;
 
-import com.itextpdf.adapters.ndi.impl.signing.services.CallbackValidator;
+import com.itextpdf.adapters.ndi.signing.CallbackValidator;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;

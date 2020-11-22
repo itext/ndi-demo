@@ -20,15 +20,16 @@ GET    /logoff                    com.itextpdf.demo.ndi.controllers.HomeControll
 
 #file upload form page
 GET    /upload                   com.itextpdf.demo.ndi.controllers.HomeController.personalPage()
-GET    /files/tmpl               com.itextpdf.demo.ndi.file.FileController.uploadTestDocument()
+
+
+GET    /files/tmpl               com.itextpdf.demo.ndi.files.FileController.uploadTestDocument()
 #download document
-GET    /files/:id/download       com.itextpdf.demo.ndi.file.FileController.download(id: String)
+GET    /files/:id/download       com.itextpdf.demo.ndi.files.FileController.download(id: String)
 
 #action route for an upload form
-POST   /files/upload             com.itextpdf.demo.ndi.file.FileController.upload()
+POST   /files/upload             com.itextpdf.demo.ndi.files.FileController.upload()
 
-
-GET    /files/:id/sign           com.itextpdf.demo.ndi.file.FileController.signPage(id: String)
+GET    /files/:id/sign           com.itextpdf.demo.ndi.files.FileController.signPage(id: String)
 
 
 

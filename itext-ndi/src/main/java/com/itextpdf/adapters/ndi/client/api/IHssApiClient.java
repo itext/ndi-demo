@@ -1,7 +1,7 @@
 package com.itextpdf.adapters.ndi.client.api;
 
-import com.itextpdf.adapters.ndi.impl.client.models.HashSigningRequest;
-import com.itextpdf.adapters.ndi.impl.client.models.InitCallQrResult;
+import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
+import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
 
 import java.util.concurrent.CompletionStage;
 
@@ -29,12 +29,12 @@ public interface IHssApiClient {
     String HASH_SIGNING_ENPOINT = HSS_DOMAIN + "/sign-hash";
 
      /**
-     * Initialises a signing process, using Push Notification.
+     * Initialises a signing process, returns data to encode as QrCode.
      *
       * @param aNonce @return
       * @return
       */
-    CompletionStage<InitCallQrResult> firstLegQr(String aNonce);
+    CompletionStage<InitCallQrResult> firstLeg(String aNonce);
 
     /**
      * Sends a document hash to API for signing.

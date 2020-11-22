@@ -1,16 +1,16 @@
 package com.itextpdf.demo.ndi.sign.services;
 
 import com.codepoetics.ambivalence.Either;
-import com.itextpdf.adapters.ndi.impl.client.converters.CallbackConverter;
-import com.itextpdf.adapters.ndi.impl.client.models.callback.NdiCallbackMessage;
+import com.itextpdf.adapters.ndi.client.converters.CallbackConverter;
+import com.itextpdf.adapters.ndi.client.models.callback.NdiCallbackMessage;
 import com.itextpdf.demo.ndi.files.PdfFile;
-import com.itextpdf.adapters.ndi.impl.signing.services.containers.exceptions.CallbackValidationException;
-import com.itextpdf.adapters.ndi.impl.signing.services.models.ContainerError;
-import com.itextpdf.adapters.ndi.impl.signing.services.models.InitializationResult;
-import com.itextpdf.adapters.ndi.impl.signing.services.models.PresignResult;
-import com.itextpdf.adapters.ndi.impl.signing.services.CallbackValidator;
-import com.itextpdf.adapters.ndi.impl.signing.services.NDIDocument;
-import com.itextpdf.adapters.ndi.impl.signing.services.NDIDocumentService;
+import com.itextpdf.adapters.ndi.pdf.containers.exceptions.CallbackValidationException;
+import com.itextpdf.adapters.ndi.signing.models.ContainerError;
+import com.itextpdf.demo.ndi.sign.models.InitializationResult;
+import com.itextpdf.demo.ndi.sign.models.PresignResult;
+import com.itextpdf.adapters.ndi.signing.CallbackValidator;
+import com.itextpdf.adapters.ndi.signing.NDIDocument;
+import com.itextpdf.adapters.ndi.signing.NDIDocumentService;
 import com.itextpdf.demo.ndi.sign.converters.NDIDocumentConverter;
 import com.itextpdf.demo.ndi.sign.models.NdiDocumentWrapper;
 import com.itextpdf.demo.ndi.sign.repositories.NDIDocumentWrapperRepository;

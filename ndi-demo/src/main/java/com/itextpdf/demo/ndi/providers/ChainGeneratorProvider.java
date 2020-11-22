@@ -1,7 +1,7 @@
 package com.itextpdf.demo.ndi.providers;
 
-import com.itextpdf.adapters.ndi.impl.signing.services.ChainFromFileGenerator;
-import com.itextpdf.adapters.ndi.signing.services.api.IChainGenerator;
+import com.itextpdf.adapters.ndi.signing.ChainFromFileGenerator;
+import com.itextpdf.adapters.ndi.signing.api.IChainGenerator;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;

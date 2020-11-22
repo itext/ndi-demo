@@ -1,8 +1,8 @@
 package com.itextpdf.demo.ndi.sign.models;
 
-import com.itextpdf.adapters.ndi.impl.signing.services.NDIDocumentService;
-import com.itextpdf.adapters.ndi.impl.client.models.callback.NdiCallbackMessage;
-import com.itextpdf.adapters.ndi.impl.signing.services.NDIDocument;
+import com.itextpdf.adapters.ndi.signing.NDIDocumentService;
+import com.itextpdf.adapters.ndi.client.models.callback.NdiCallbackMessage;
+import com.itextpdf.adapters.ndi.signing.NDIDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

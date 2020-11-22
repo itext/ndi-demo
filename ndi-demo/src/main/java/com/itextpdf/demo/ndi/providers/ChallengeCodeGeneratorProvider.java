@@ -1,7 +1,7 @@
 package com.itextpdf.demo.ndi.providers;
 
-import com.itextpdf.adapters.ndi.impl.signing.services.ChallengeCodeGenerator;
-import com.itextpdf.adapters.ndi.signing.services.api.IChallengeCodeGenerator;
+import com.itextpdf.adapters.ndi.signing.ChallengeCodeGenerator;
+import com.itextpdf.adapters.ndi.signing.api.IChallengeCodeGenerator;
 
 import javax.inject.Provider;
 import javax.inject.Singleton;
