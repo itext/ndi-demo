@@ -48,7 +48,9 @@ public class NDIDocumentService {
 
     private static final String hashAlgorithm = DigestAlgorithms.SHA256;
 
-    /** Elliptic curve algorithm is being used for keys in NDI DSS*/
+    /**
+     * Elliptic curve algorithm is being used for keys in NDI DSS
+     */
     private static final String encryptionAlgorithm = "ECDSA";
 
     private final static Logger logger = LoggerFactory.getLogger(NDIDocumentService.class);
@@ -174,7 +176,7 @@ public class NDIDocumentService {
     private CompletionStage<NDIDocument> applySecondCallback(NDIDocument aDocument, CallbackSecondLegMessage aMessage) {
         return CompletableFuture.supplyAsync(() -> aDocument)
                                 .thenApply((d) -> this.completeSigning(d, aMessage))
-                                .thenApply(this::addLTVToResult)
+//                                .thenApply(this::addLTVToResult)
                                 .thenApply(d -> changeStatus(d, SigningStatus.COMPLETED))
                                 .exceptionally(t -> changeStatus(aDocument, SigningStatus.TERMINATED));
     }
@@ -205,8 +207,8 @@ public class NDIDocumentService {
         Certificate[] chain = this.chainGenerator.getCompleteChain(usrCert);
         aDocument.setCertificatesChain(chain);
 
-        List<byte[]> ocspList = getOCSP(chain);
-        aDocument.setOscp(ocspList);
+//        List<byte[]> ocspList = getOCSP(chain);
+//        aDocument.setOscp(ocspList);
         return aDocument;
     }
 
@@ -244,9 +246,9 @@ public class NDIDocumentService {
 
             Integer chCode = codeGenerator.generate();
             aDocument.setChallengeCode(chCode);
-
+            logger.info(aDocument.toString());
             return this.sendDocumentForSigning(aDocument)
-                       .thenApply((s) -> aDocument);
+                       .thenApply(s -> aDocument);
         } catch (IOException | GeneralSecurityException e) {
             final String errorMessage = String.format(
                     "Signing process failure on the document preparation step. SignRef: %s",

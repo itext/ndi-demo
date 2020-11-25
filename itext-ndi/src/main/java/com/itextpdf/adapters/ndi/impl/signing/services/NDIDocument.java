@@ -178,17 +178,9 @@ public class NDIDocument {
     public String toString() {
         return "NDIDocument{" +
                 "signatureRef='" + signatureRef + '\'' +
-                ", source=" + source.length +
-                ", preparedContent=" + preparedContent.length +
-                ", result=" + result.length +
                 ", docName='" + docName + '\'' +
                 ", userName='" + userName + '\'' +
-                ", qrCode='" + qrCode + '\'' +
-                ", fieldName='" + fieldName + '\'' +
-                ", expiresAt=" + expiresAt +
                 ", challengeCode='" + challengeCode + '\'' +
-                ", hash length=" + hash.length +
-                ", certificate chain  =" + certificatesChain.length +
                 ", error=" + error +
                 '}';
     }

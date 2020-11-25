@@ -111,7 +111,8 @@ public class SigningService implements ISigningService {
             NdiDocumentWrapper wrapper = this.getWrapperOrThrow(signRef);
 
             CompletionStage<NDIDocument> document = wrapper.getCompletedObject();
-            document.thenApply(NDIDocument::getSignatureRef).thenAccept(this.wrapperManager::remove);
+            document.thenApply(NDIDocument::getSignatureRef)
+                    .thenAccept(this.wrapperManager::remove);
             return document.thenApply(documentConverter::toOutput);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);

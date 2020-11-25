@@ -1,5 +1,6 @@
 package com.itextpdf.demo.ndi.modules;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.itextpdf.adapters.ndi.impl.client.SimpleWebClient;
@@ -49,10 +50,11 @@ public class ApplicationModule extends AbstractModule {
     @Override
     protected synchronized void configure() {
         System.out.println(configuration.getString("logger.config"));
-
+bind(ObjectMapper.class).toProvider(JavaJsonProvider.class).asEagerSingleton();
         bind(INDIInstanceConfig.class).to(NDIInstanceConfig.class);
         bind(IWebClient.class).to(SimpleWebClient.class).asEagerSingleton();
         bind(IHssApiClient.class).toProvider(NDIApiServiceProvider.class);
+//        bind(IHssApiClient.class).toProvider(WSClientForNDIProvider.class);
 
         bind(CallbackValidator.class).toProvider(CallbackValidatorProvider.class);
         bind(INotificationTokenGenerator.class).toProvider(ClientNotificationTokenGeneratorProvider.class);

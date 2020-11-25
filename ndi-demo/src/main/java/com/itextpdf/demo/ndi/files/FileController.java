@@ -45,7 +45,7 @@ public class FileController {
             byte[]      bytes        = StreamUtil.inputStreamToArray(is);
 
             PdfFile file = fileService.createFile(bytes, ndiId, documentName);
-            return redirect(com.itextpdf.demo.ndi.controllers.routes.FileController.signPage(file.getId()));
+            return redirect(com.itextpdf.demo.ndi.files.routes.FileController.signPage(file.getId()));
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
@@ -72,7 +72,7 @@ public class FileController {
         PdfFile uplFile = new PdfFile(fileToSign.getFilename(), content, ndiId);
         logger.info("file:" + fileToSign.getFile().getAbsolutePath());
         fileService.save(uplFile);
-        return redirect(com.itextpdf.demo.ndi.controllers.routes.FileController.signPage(uplFile.getId()));
+        return redirect(com.itextpdf.demo.ndi.files.routes.FileController.signPage(uplFile.getId()));
 
     }
 
