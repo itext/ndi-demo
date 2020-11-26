@@ -195,6 +195,9 @@ function challengeCodePromise(init){
 
                 return init.signRef;
               })
+              .fail(function(response) {
+    alert('Error: ' + response.responseText);
+});
 }
 function resultLink(signRef){
   return $.post(" /ndi/sign/"+signRef+"/result")

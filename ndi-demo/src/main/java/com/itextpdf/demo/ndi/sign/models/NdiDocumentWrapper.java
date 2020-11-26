@@ -90,7 +90,7 @@ public class NdiDocumentWrapper {
                               case TERMINATED:
                               default:
                                   completed.countDown();
-                                  challengeCodeIsReady.countDown();
+//                                  challengeCodeIsReady.countDown();
                                   break;
                           }
                       });

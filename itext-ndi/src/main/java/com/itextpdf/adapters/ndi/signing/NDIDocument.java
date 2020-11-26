@@ -6,46 +6,75 @@ import com.itextpdf.adapters.ndi.signing.models.Type;
 
 import java.security.cert.Certificate;
 import java.time.LocalDateTime;
+import java.util.List;
 
-/**  A parameter object for the NDI signing process */
+/**
+ * A parameter object for the ndi signing process
+ */
 public class NDIDocument {
 
-    /** Unique identifier of the document*/
+    /**
+     * Unique identifier of the document
+     */
     private final String signatureRef;
 
-    /** Source document content*/
+    /**
+     * Source document content
+     */
     private final byte[] source;
 
-    /** Source document name*/
+    /**
+     * Source document name
+     */
     private final String docName;
 
     private final String userName;
 
 
-    /** the Base64 encoded Qr code  to be displayed. Null for the document of the PN {@link Type}*/
+    /**
+     * the Base64 encoded Qr code  to be displayed. Null for the document of the PN {@link Type}
+     */
     private String qrCode;
 
-    /** the signature field in the source document, that is being used  for the signature placement*/
+    /**
+     * the signature field in the source document, that is being used  for the signature placement
+     */
     private String fieldName;
 
-    /** deadline for the signing */
+    /**
+     * deadline for the signing
+     */
     private LocalDateTime expiresAt;
 
-    /** challenge code generated before the 2nd leg call*/
+    /**
+     * challenge code generated before the 2nd leg call
+     */
     private Integer challengeCode;
 
-    /** The digest of the source document*/
+    /**
+     * The digest of the source document
+     */
     private byte[] hash;
 
-    /** The certificate chain for the NDI user.
-     According to NDI guidelines a signing software shouldn`t store user certificates!*/
+    /**
+     * The certificate chain for the NDI user.
+     * According to NDI guidelines a signing software shouldn`t store user certificates!
+     */
     private Certificate[] certificatesChain;
 
+    /**
+     * OSCP responses for the certificateChain
+     */
+    private List<byte[]> oscp;
 
-    /** The content that is ready for the placement of a PKCS#7 container*/
+    /**
+     * The content that is ready for the placement of a PKCS#7 container
+     */
     private byte[] preparedContent;
 
-    /** The content of the signed document */
+    /**
+     * The content of the signed document
+     */
     private byte[] result;
 
     private ContainerError error;
@@ -88,6 +117,13 @@ public class NDIDocument {
     }
 
 
+    public List<byte[]> getOscp() {
+        return oscp;
+    }
+
+    void setOscp(List<byte[]> oscp) {
+        this.oscp = oscp;
+    }
 
     public byte[] getPreparedContent() {
         return preparedContent;
@@ -162,8 +198,6 @@ public class NDIDocument {
     void setStatus(SigningStatus status) {
         this.status = status;
     }
-
-
 
 }
 

@@ -24,9 +24,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class iTextDefferedSigningHelper {
+public class iTextDeferredSigningHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(iTextDefferedSigningHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(iTextDeferredSigningHelper.class);
 
     private static final String hashAlgorithm = DigestAlgorithms.SHA256;
 
@@ -41,9 +41,9 @@ public class iTextDefferedSigningHelper {
 
     private final IOcspClient ocspClient;
 
-    private int signatureLength = 12288;//1228819500;
+    private int signatureLength = 12288;
 
-    public iTextDefferedSigningHelper(ITSAClient tsaClient, IOcspClient ocspClient) {
+    public iTextDeferredSigningHelper(ITSAClient tsaClient, IOcspClient ocspClient) {
         this.tsaClient = tsaClient;
         this.ocspClient = ocspClient;
     }

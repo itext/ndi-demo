@@ -1,10 +1,11 @@
 package com.itextpdf.demo.ndi.modules;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.itextpdf.adapters.ndi.client.http.SimpleHttpClient;
-import com.itextpdf.adapters.ndi.client.http.IHttpClient;
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.http.IHttpClient;
+import com.itextpdf.adapters.ndi.client.http.SimpleHttpClient;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
 import com.itextpdf.adapters.ndi.config.NDIInstanceConfig;
 import com.itextpdf.adapters.ndi.signing.CallbackValidator;
@@ -30,10 +31,6 @@ import java.util.Optional;
 
 public class ApplicationModule extends AbstractModule {
 
-
-    /**
-     * Логгер
-     */
     private final static Logger.ALogger LOGGER = Logger.of(ApplicationModule.class);
 
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(ApplicationModule.class);
@@ -49,10 +46,11 @@ public class ApplicationModule extends AbstractModule {
     @Override
     protected synchronized void configure() {
         System.out.println(configuration.getString("logger.config"));
-
+        bind(ObjectMapper.class).toProvider(JavaJsonProvider.class).asEagerSingleton();
         bind(INDIInstanceConfig.class).to(NDIInstanceConfig.class);
         bind(IHttpClient.class).to(SimpleHttpClient.class).asEagerSingleton();
         bind(IHssApiClient.class).toProvider(NDIApiServiceProvider.class);
+        //        bind(IHssApiClient.class).toProvider(WSClientForNDIProvider.class);
 
         bind(CallbackValidator.class).toProvider(CallbackValidatorProvider.class);
         bind(INotificationTokenGenerator.class).toProvider(ClientNotificationTokenGeneratorProvider.class);

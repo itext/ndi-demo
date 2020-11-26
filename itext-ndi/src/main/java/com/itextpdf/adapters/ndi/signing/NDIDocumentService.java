@@ -12,7 +12,7 @@ import com.itextpdf.adapters.ndi.signing.models.SigningStatus;
 import com.itextpdf.adapters.ndi.signing.models.Type;
 import com.itextpdf.adapters.ndi.signing.models.ExpectedCallback;
 import com.itextpdf.adapters.ndi.pdf.models.SecondStepInput;
-import com.itextpdf.adapters.ndi.pdf.iTextDefferedSigningHelper;
+import com.itextpdf.adapters.ndi.pdf.iTextDeferredSigningHelper;
 import com.itextpdf.adapters.ndi.pdf.models.FirstStepOutput;
 import com.itextpdf.signatures.IOcspClient;
 import com.itextpdf.signatures.ITSAClient;
@@ -59,7 +59,7 @@ public class NDIDocumentService {
 
     private final CallbackValidator callbackValidator;
 
-    private final iTextDefferedSigningHelper signingHelper;
+    private final iTextDeferredSigningHelper signingHelper;
 
     public NDIDocumentService(IHssApiClient ndiApi,
                               IChallengeCodeGenerator challengeCodeGenerator,
@@ -75,7 +75,7 @@ public class NDIDocumentService {
         this.chainGenerator = chainGenerator;
         this.qrCodeGenerator = qrCodeGenerator;
         this.callbackValidator = callbackValidator;
-        this.signingHelper = new iTextDefferedSigningHelper(tsaClient, ocspClient);
+        this.signingHelper = new iTextDeferredSigningHelper(tsaClient, ocspClient);
     }
 
     public PdfSignatureAppearance getAppearance() {
