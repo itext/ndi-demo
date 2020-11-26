@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.pdf.models;
+package com.itextpdf.adapters.ndi.helper.models;
 
 public class FirstStepOutput {
 

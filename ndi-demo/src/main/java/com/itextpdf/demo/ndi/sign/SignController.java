@@ -79,14 +79,17 @@ public class SignController extends Controller {
                                .map(e -> e.getKey() + String.join(",", e.getValue()))
                                .collect(Collectors.joining(", "));
         logger.info("Callback received: " + s);
-        return iSigningService.sendCallback(queryEntries)
+        return iSigningService.processCallback(queryEntries)
                               .thenApply((a) -> (Result) Results.ok())
                               .exceptionally((t) -> {
                                   logger.error("Bad response: " + t.getMessage());
                                   return Results.badRequest(t.getMessage());
                               });
     }
-
+    public CompletionStage<Result> signCallbackPost() {
+        logger.info("post");
+        return CompletableFuture.completedFuture(Results.ok());
+    }
 
     /**
      * Returns the result of the signing.

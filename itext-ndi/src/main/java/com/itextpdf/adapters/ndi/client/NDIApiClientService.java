@@ -4,16 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.itextpdf.adapters.ndi.client.converters.ApiModelsConverter;
-import com.itextpdf.adapters.ndi.client.http.IHttpClient;
-import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
-import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParms;
-import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
-
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.converters.ApiModelsConverter;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
 import com.itextpdf.adapters.ndi.client.http.HttpResponse;
+import com.itextpdf.adapters.ndi.client.http.IHttpClient;
+import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
 import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParms;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
 import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
 import com.itextpdf.kernel.xmp.impl.Base64;
@@ -21,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -29,13 +30,16 @@ import java.util.concurrent.CompletionStage;
 import static java.net.HttpURLConnection.HTTP_CREATED;
 import static java.net.HttpURLConnection.HTTP_OK;
 
-//todo
-/** API service */
+/**
+ * API client. Used underneath the {@see SimpleHttpClient } for web requests.
+ */
 public class NDIApiClientService implements IHssApiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NDIApiClientService.class);
 
-    /** Json content type */
+    /**
+     * Json content type
+     */
     private static final String jsonContentType = "application/json";
 
     private static final ObjectMapper objectMapper = new ObjectMapper()
@@ -44,9 +48,7 @@ public class NDIApiClientService implements IHssApiClient {
     private static final ApiModelsConverter converter = new ApiModelsConverter();
 
 
-    /**
-     * The configuration of the ndi instance
-     */
+    /** The configuration of the ndi instance */
     private final INDIInstanceConfig ndiConfig;
 
     private final INotificationTokenGenerator tokenProvider;
@@ -98,13 +100,10 @@ public class NDIApiClientService implements IHssApiClient {
         QRTriggerQueryParms requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
                                                                      tokenProvider.getToken(), aNonce);
 
-        String query = "client_id=" + requestParams.getClientId() +
-                "&client_notification_token=" + requestParams.getClientNotificationToken() +
-                "&response_type=" + requestParams.getResponseType() +
-                "&nonce=" + requestParams.getNonce();
+        String query   = requestParams.toQueryString();
         String fullUrl = QR_AUTH_ENDPOINT + "?" + query;
-
-        logger.info("request: " + fullUrl);
+        logger.info("time " +LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        logger.info("first leg, request: " + fullUrl);
         return CompletableFuture.supplyAsync(() -> webClient.get(fullUrl, getAuthHeader()))
                                 .thenApply(r -> {
                                     if (this.hasErrors(r)) {
@@ -115,6 +114,7 @@ public class NDIApiClientService implements IHssApiClient {
                                         throw new NDIServiceException("First leg error: " + r.getBody());
                                     }
                                     logger.info("body: " + r.getBody());
+                                    logger.info(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
                                     QRTriggerResponse tr = mapToObject(r.getBody(), QRTriggerResponse.class);
                                     return converter.toResult(tr, r.getBody());
                                 });
@@ -123,6 +123,7 @@ public class NDIApiClientService implements IHssApiClient {
     @Override
     public CompletionStage<Void> secondLeg(HashSigningRequest request) {
         String jsonString = toJsonString(request);
+        logger.info("time:" +LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         logger.info("second leg: url -" + HASH_SIGNING_ENPOINT);
         logger.info("data: " + jsonString);
         return CompletableFuture.supplyAsync(
@@ -130,12 +131,13 @@ public class NDIApiClientService implements IHssApiClient {
                                 .thenAccept((r) -> {
                                     if (hasErrors(r)) {
                                         logger.error(
-                                                String.format("Second leg. Error message received. Code %d info: %s",
+                                                String.format("Second leg. Error: code %d info: %s",
                                                               r.getStatus(),
                                                               r.getBody()));
                                         throw new NDIServiceException("Second leg. Error: " + r.getBody());
                                     }
-                                    logger.info("success");
+                                    logger.info(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                                    logger.info("success. s:" + r.getStatus() + " body:" + r.getBody());
                                 });
     }
 

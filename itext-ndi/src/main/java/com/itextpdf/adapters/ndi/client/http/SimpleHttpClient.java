@@ -26,6 +26,7 @@ public class SimpleHttpClient implements IHttpClient {
             URL url = new URL(aUrl);
             conn = (HttpsURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
+            logger.info("auth "+ aAuthHeader);
             conn.setRequestProperty("Authorization", aAuthHeader);
             conn.setDoOutput(true);
 

@@ -2,14 +2,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Signing</title>
-    <script
-            src="https://code.jquery.com/jquery-3.4.1.min.js"
-            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-            crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <title>
+        Signing
+    </title>
+    <script crossorigin="anonymous" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" src="https://code.jquery.com/jquery-3.4.1.min.js">
+    </script>
     <style>
-         * {
+                * {
     font-family: Arial, SANS-SERIF;
     margin-top: 0;
     padding: 0;
@@ -146,54 +146,59 @@ margin-right: 4%;
 text-align: center;
 width: 100%;
 }
-
-
-
-
-
-
-    </style>
+            </style>
+    </meta>
 </head>
 <body>
-<h1 class="header">ITEXT+NDI demo</h1>
+<h1 class="header">
+    ITEXT+NDI demo
+</h1>
 <div class="card">
-    <h4>Signing of <strong>@documentName</strong> by <strong>@ndiId</strong></h4>
+    <h4>
+        Signing of
+        <strong>
+            @documentName
+        </strong>
+        by
+        <strong>
+            @ndiId
+        </strong>
+    </h4>
     <div class="qr-code" style="display: none;">
-
     </div>
-
     <div class="challenge-code" style="display:none; width: 300px;">
-        <p>Challenge code</p>
-        <h1></h1>
+        <p>
+            Challenge code
+        </p>
+        <h1>
+        </h1>
     </div>
     <div class="result-file" style="display: none;">
         <p>
-            <span>Result:</span>
+                    <span>
+                        Result:
+                    </span>
         </p>
     </div>
-    <div class="btns">
-        <input id="qr" type="button" value="show QR code" />
-    </div>
+
 </div>
-
 <script>
+            function qrCodePromise(init){
 
-function qrCodePromise(init){
-
-                  $(".qr-code").append("<img src='"+init.qrCode+"' />").show();
+                  $(".qr-code").append("<img src='"+init.QrCode+"' />").show();
                    return init;
 
 }
 
 
 function challengeCodePromise(init){
-  return $.post(" /ndi/sign/"+init.signRef+"/challenge")
+  return $.post(" /ndi/sign/"+init.SignRef+"/challenge")
         .then(function (result){
                 $(".qr-code").hide();
-                $('<h1>'+result.challengeCode+'</h1>').appendTo(".challenge-code");
+                $('<h1>'+result.ChallengeCode+'</h1>').appendTo(".challenge-code");
                 $(".challenge-code").show();
 
-                return init.signRef;
+                return init.SignRef;
               })
               .fail(function(response) {
     alert('Error: ' + response.responseText);
@@ -201,40 +206,24 @@ function challengeCodePromise(init){
 }
 function resultLink(signRef){
   return $.post(" /ndi/sign/"+signRef+"/result")
-  			  .then(  function (fileId){
-          			       $(".challenge-code").remove();
-    					   $('<a href="/files/'+fileId+'/download">Download signed document</a>').appendTo(".result-file p");
-    					   $(".result-file").show();
-    });
+              .then(  function (fileId){
+                           $(".challenge-code").remove();
+                           $('<a href="/files/'+fileId+'/download">Download signed document</a>').appendTo(".result-file p");
+                           $(".result-file").show();
+    }) .fail(function(response) {
+    alert('Error: ' + response.responseText);
+});;
 }
 
-function hideButtons(){
-$(".btns").hide();
-}
 
 $(document).ready(function(){
-$("#qr").click(function(){
-hideButtons();
  $.post("/ndi/sign?fileRef=@fileId&type=QR")
-.then(qrCodePromise)
-.then(challengeCodePromise)
-.then(resultLink);
-return false;
-})
-$("#pn").click(function(){
-hideButtons();
-$.post("/ndi/sign?fileRef=@fileId&type=PN")
-.then(challengeCodePromise)
-.then(resultLink);
-return false;
-})
+                .then(qrCodePromise)
+                .then(challengeCodePromise);
+
+
 
 })
-
-
-
-
-
-</script>
+        </script>
 </body>
 </html>

@@ -25,11 +25,6 @@ public class FileService {
 
         String fkey = fileRepo.key(ndiId, fileRef);
         return Optional.ofNullable(fileRepo.find(fkey))
-                       .map(f -> {
-                           logger.info("file info: " + f.toString());
-                           return f;
-                       })
-//                       .filter(f -> f.getUserId().equals(ndiId))
                        .orElseThrow(() -> new FileNotFoundException("File: " + fileRef + " is not found"));
     }
 

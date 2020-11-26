@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.pdf.containers.exceptions;
+package com.itextpdf.adapters.ndi.helper.containers.exceptions;
 
 public class CallbackValidationException extends Exception {
 

@@ -48,12 +48,6 @@ public class QRTriggerQueryParms {
 
     private String clientNotificationToken;
 
-    /**
-     * The id_token of the authenticated NDI user. This id_token can be retrieved by performing an OIDC handshake
-     * with NDI's ASP
-     */
-    private String loginHint;
-
     public String getClientId() {
         return clientId;
     }
@@ -78,15 +72,12 @@ public class QRTriggerQueryParms {
         this.clientNotificationToken = clientNotificationToken;
     }
 
-    public String getLoginHint() {
-        return loginHint;
-    }
-
-    public void setLoginHint(String loginHint) {
-        this.loginHint = loginHint;
-    }
 
     public String getResponseType() {
         return responseType;
+    }
+
+    public String toQueryString(){
+        return String.format("client_id=%s&client_notification_token=%s&response_type=%s&nonce=%s", clientId, clientNotificationToken, responseType, nonce) ;
     }
 }

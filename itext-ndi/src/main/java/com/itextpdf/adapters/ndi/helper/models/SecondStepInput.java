@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.pdf.models;
+package com.itextpdf.adapters.ndi.helper.models;
 
 import java.security.cert.Certificate;
 
@@ -12,15 +12,15 @@ public class SecondStepInput {
 
     private final Certificate[] certificateChain;
 
-    private final byte[] aSignedHash;
+    private final byte[] signedHash;
 
     public SecondStepInput(byte[] preparedContent, String fieldName, byte[] documentDigest,
-                           Certificate[] certificateChain, byte[] aSignedHash) {
+                           Certificate[] certificateChain, byte[] signedHash) {
         this.preparedContent = preparedContent;
         this.fieldName = fieldName;
         this.documentDigest = documentDigest;
         this.certificateChain = certificateChain;
-        this.aSignedHash = aSignedHash;
+        this.signedHash = signedHash;
     }
 
     public byte[] getPreparedContent() {
@@ -39,7 +39,7 @@ public class SecondStepInput {
         return certificateChain;
     }
 
-    public byte[] getaSignedHash() {
-        return aSignedHash;
+    public byte[] getSignedHash() {
+        return signedHash;
     }
 }

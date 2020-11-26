@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.pdf.containers;
+package com.itextpdf.adapters.ndi.helper.containers;
 
 import com.itextpdf.kernel.pdf.PdfName;
 import com.itextpdf.signatures.DigestAlgorithms;
@@ -13,7 +13,7 @@ public class NdiBlankSignatureContainer extends ExternalBlankSignatureContainer 
 
     private static PdfName filter = PdfName.Adobe_PPKLite;
 
-    private static PdfName subFilter = PdfName.Adbe_pkcs7_detached;
+    private static PdfName subFilter = PdfName.ETSI_CAdES_DETACHED;
 
     private byte[] docDigest;
 

@@ -49,11 +49,12 @@ public class NdiDocumentWrapper {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 challengeCodeIsReady.await();
+                return document;
             } catch (InterruptedException e) {
+                logger.error(e.getMessage());
                 throw new RuntimeException(e);
             }
 
-            return document;
         });
     }
 
@@ -71,15 +72,11 @@ public class NdiDocumentWrapper {
         });
     }
 
-
-    public NDIDocument getDocument() {
-        return document;
-    }
-
-    public synchronized CompletionStage<Void> updateFromCallback(NdiCallbackMessage data) {
+    public synchronized CompletionStage<Void> passCallback(NdiCallbackMessage data) {
 
         return service.updateFromCallback(document, data)
                       .thenAccept(s -> {
+                          logger.info("ch "+s.getStatus());
                           switch (s.getStatus()) {
                               case COMPLETED:
                                   completed.countDown();
@@ -90,7 +87,7 @@ public class NdiDocumentWrapper {
                               case TERMINATED:
                               default:
                                   completed.countDown();
-//                                  challengeCodeIsReady.countDown();
+                                  challengeCodeIsReady.countDown();
                                   break;
                           }
                       });

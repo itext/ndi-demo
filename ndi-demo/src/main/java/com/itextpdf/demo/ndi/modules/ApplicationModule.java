@@ -31,7 +31,6 @@ import java.util.Optional;
 
 public class ApplicationModule extends AbstractModule {
 
-    private final static Logger.ALogger LOGGER = Logger.of(ApplicationModule.class);
 
     private final static org.slf4j.Logger logger = LoggerFactory.getLogger(ApplicationModule.class);
 
@@ -49,8 +48,9 @@ public class ApplicationModule extends AbstractModule {
         bind(ObjectMapper.class).toProvider(JavaJsonProvider.class).asEagerSingleton();
         bind(INDIInstanceConfig.class).to(NDIInstanceConfig.class);
         bind(IHttpClient.class).to(SimpleHttpClient.class).asEagerSingleton();
-        bind(IHssApiClient.class).toProvider(NDIApiServiceProvider.class);
-        //        bind(IHssApiClient.class).toProvider(WSClientForNDIProvider.class);
+
+//        bind(IHssApiClient.class).toProvider(NDIApiServiceProvider.class).asEagerSingleton();
+                bind(IHssApiClient.class).toProvider(WSClientForNDIProvider.class);
 
         bind(CallbackValidator.class).toProvider(CallbackValidatorProvider.class);
         bind(INotificationTokenGenerator.class).toProvider(ClientNotificationTokenGeneratorProvider.class);

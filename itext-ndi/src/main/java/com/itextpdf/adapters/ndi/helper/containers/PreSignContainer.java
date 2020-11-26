@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.pdf.containers;
+package com.itextpdf.adapters.ndi.helper.containers;
 
 import com.itextpdf.kernel.pdf.PdfDictionary;
 import com.itextpdf.kernel.pdf.PdfDocument;

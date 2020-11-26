@@ -6,9 +6,11 @@ Paly2 framework
 The application can be started using:
 
 - in development mode:
-mvn play2:run -Dplay2.serverJvmArgs="-Dplay.server.pidfile.path=/dev/null -Dplay.server.dir=./target/classes"
+mvn play2:run -Dplay2.serverJvmArgs="-Dplay.server.pidfile.path=/dev/null -Dplay.server.dir=./target/classes -Dndi.client.id=clientid -Dndi.client.secret=clientsecret"
+
 - in prod mode
-mvn play2:start
+mvn play2:start -Dplay2.serverJvmArgs="-Dndi.client.id=clientid -Dndi.client.secret=clientsecret"
+
 
 Default port is 9000.
 

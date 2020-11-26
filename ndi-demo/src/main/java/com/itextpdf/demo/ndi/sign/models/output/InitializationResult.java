@@ -1,5 +1,9 @@
-package com.itextpdf.demo.ndi.sign.models;
+package com.itextpdf.demo.ndi.sign.models.output;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
+@JsonNaming(PropertyNamingStrategy.UpperCamelCaseStrategy.class)
 public class InitializationResult {
 
     private final String signRef;

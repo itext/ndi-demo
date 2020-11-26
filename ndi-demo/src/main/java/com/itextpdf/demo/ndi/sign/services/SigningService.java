@@ -3,16 +3,16 @@ package com.itextpdf.demo.ndi.sign.services;
 import com.codepoetics.ambivalence.Either;
 import com.itextpdf.adapters.ndi.client.converters.CallbackConverter;
 import com.itextpdf.adapters.ndi.client.models.callback.NdiCallbackMessage;
-import com.itextpdf.demo.ndi.files.PdfFile;
-import com.itextpdf.adapters.ndi.pdf.containers.exceptions.CallbackValidationException;
-import com.itextpdf.adapters.ndi.signing.models.ContainerError;
-import com.itextpdf.demo.ndi.sign.models.InitializationResult;
-import com.itextpdf.demo.ndi.sign.models.PresignResult;
+import com.itextpdf.adapters.ndi.helper.containers.exceptions.CallbackValidationException;
 import com.itextpdf.adapters.ndi.signing.CallbackValidator;
 import com.itextpdf.adapters.ndi.signing.NDIDocument;
 import com.itextpdf.adapters.ndi.signing.NDIDocumentService;
+import com.itextpdf.adapters.ndi.signing.models.ContainerError;
+import com.itextpdf.demo.ndi.files.PdfFile;
 import com.itextpdf.demo.ndi.sign.converters.NDIDocumentConverter;
 import com.itextpdf.demo.ndi.sign.models.NdiDocumentWrapper;
+import com.itextpdf.demo.ndi.sign.models.output.InitializationResult;
+import com.itextpdf.demo.ndi.sign.models.output.PresignResult;
 import com.itextpdf.demo.ndi.sign.repositories.NDIDocumentWrapperRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class SigningService implements ISigningService {
     }
 
     @Override
-    public CompletionStage<Void> sendCallback(Map<String, String[]> aQueryParams) {
+    public CompletionStage<Void> processCallback(Map<String, String[]> aQueryParams) {
         NdiCallbackMessage data = converter.convertParamsToCallbackMessage(aQueryParams);
 
         try {
@@ -79,9 +79,9 @@ public class SigningService implements ISigningService {
             } catch (CallbackValidationException e) {
                 logger.error(e.getMessage());
             }
-
             NdiDocumentWrapper wrapper = getWrapperOrThrow(data.getSignRef());
-            return CompletableFuture.runAsync(() -> wrapper.updateFromCallback(data));
+            //we need to return execution back as soon as possible, to prevent timeout exception
+            return CompletableFuture.runAsync(() -> wrapper.passCallback(data));
         } catch (FileNotFoundException e) {
             final String message = "Invalid callback.";
             logger.error(message, e);
@@ -91,8 +91,8 @@ public class SigningService implements ISigningService {
 
     private NdiDocumentWrapper getWrapperOrThrow(String signRef) throws FileNotFoundException {
         return this.wrapperManager.find(signRef)
-                                  .orElseThrow((() -> new FileNotFoundException(
-                                          "Ndi document is not found: " + signRef)));
+                                  .orElseThrow(
+                                          (() -> new FileNotFoundException("Ndi document is not found: " + signRef)));
     }
 
     @Override

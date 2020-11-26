@@ -10,7 +10,6 @@ import java.time.temporal.ChronoUnit;
 public class ApiModelsConverter {
 
 
-    //todo
     private LocalDateTime calculateDeadline(Long aExpiresIn) {
         LocalDateTime requestTime = LocalDateTime.now();
         return requestTime.plus(aExpiresIn, ChronoUnit.SECONDS);

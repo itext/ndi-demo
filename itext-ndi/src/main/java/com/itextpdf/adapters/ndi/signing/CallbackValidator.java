@@ -1,6 +1,6 @@
 package com.itextpdf.adapters.ndi.signing;
 
-import com.itextpdf.adapters.ndi.pdf.containers.exceptions.CallbackValidationException;
+import com.itextpdf.adapters.ndi.helper.containers.exceptions.CallbackValidationException;
 import com.itextpdf.adapters.ndi.client.models.callback.CallbackSecondLegMessage;
 import com.itextpdf.adapters.ndi.client.models.callback.NdiCallbackMessage;
 import com.itextpdf.adapters.ndi.signing.models.ExpectedCallback;

@@ -19,10 +19,12 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 
 import javax.inject.Inject;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
-/** Ndi client implemetation which is based on WSClient */
+/** Ndi client implementation based on WSClient */
 public class NDIClientWSImpl implements IHssApiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NDIClientWSImpl.class);
@@ -32,14 +34,10 @@ public class NDIClientWSImpl implements IHssApiClient {
 
     private final INotificationTokenGenerator tokenProvider;
 
-    /**
-     * The configuration of the ndi instance
-     */
+    /** The configuration of the ndi instance*/
     private INDIInstanceConfig ndiConfig;
 
-    /**
-     * Client for web services
-     */
+    /**Client for web services*/
     private WSClient client;
 
     private final ApiModelsConverter converter = new ApiModelsConverter();
@@ -58,19 +56,9 @@ public class NDIClientWSImpl implements IHssApiClient {
                                                                      tokenProvider.getToken(), aNonce);
         WSRequest wsRequest = client.url(QR_AUTH_ENDPOINT)
                                     .setAuth(ndiConfig.getClientId(), ndiConfig.getClientSecret())
-                                    .setQueryParameter("client_id", requestParams.getClientId())
-                                    .setQueryParameter("client_notification_token",
-                                                       requestParams.getClientNotificationToken())
-                                    .setQueryParameter("response_type", requestParams.getResponseType())
-                                    .setQueryParameter("nonce", requestParams.getNonce());
-        String s = wsRequest.getQueryParameters()
-                            .entrySet()
-                            .stream()
-                            .map(e -> e.getKey() + "=" + String.join(",", e.getValue()))
-                            .collect(
-                                    Collectors.joining("&"));
-
-        logger.info("request" + wsRequest.getUrl() + "?" + s);
+                                    .setQueryString(requestParams.toQueryString());
+        logger.info("time:" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        logger.info("request" + wsRequest.getUrl() + "?" + requestParams.toQueryString());
         return wsRequest.get()
                         .thenApply(r -> {
                             if (this.hasErrors(r)) {
@@ -80,6 +68,8 @@ public class NDIClientWSImpl implements IHssApiClient {
                                                            r.getBody()));
                                 throw new NDIServiceException("First leg error " + r.getBody());
                             }
+                            logger.info("answ:" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+
                             QRTriggerResponse tr     = Json.fromJson(r.asJson(), QRTriggerResponse.class);
                             String            qrData = r.asJson().toString();
                             return converter.toResult(tr, qrData);
@@ -90,6 +80,7 @@ public class NDIClientWSImpl implements IHssApiClient {
     public CompletionStage<Void> secondLeg(HashSigningRequest request) {
         JsonNode node = Json.toJson(request);
         logger.info("second leg: url -" + HASH_SIGNING_ENPOINT);
+        logger.info("time:" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         logger.info("data: " + node.toString());
         return post(HASH_SIGNING_ENPOINT, node)
                 .thenAccept((r) -> {

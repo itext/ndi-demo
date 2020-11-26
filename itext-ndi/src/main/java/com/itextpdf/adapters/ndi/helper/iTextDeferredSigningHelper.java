@@ -1,9 +1,9 @@
-package com.itextpdf.adapters.ndi.pdf;
+package com.itextpdf.adapters.ndi.helper;
 
-import com.itextpdf.adapters.ndi.pdf.containers.SetSignatureContainer;
-import com.itextpdf.adapters.ndi.pdf.models.FirstStepOutput;
-import com.itextpdf.adapters.ndi.pdf.containers.NdiBlankSignatureContainer;
-import com.itextpdf.adapters.ndi.pdf.models.SecondStepInput;
+import com.itextpdf.adapters.ndi.helper.containers.SetSignatureContainer;
+import com.itextpdf.adapters.ndi.helper.models.FirstStepOutput;
+import com.itextpdf.adapters.ndi.helper.containers.NdiBlankSignatureContainer;
+import com.itextpdf.adapters.ndi.helper.models.SecondStepInput;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -17,6 +17,8 @@ import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -30,9 +32,7 @@ public class iTextDeferredSigningHelper {
 
     private static final String hashAlgorithm = DigestAlgorithms.SHA256;
 
-    /**
-     * Elliptic curve algorithm is being used for keys in NDI DSS
-     */
+    /**Elliptic curve algorithm is being used for keys in NDI DSS*/
     private static final String encryptionAlgorithm = "ECDSA";
 
     private static final BouncyCastleDigest digest = new BouncyCastleDigest();
@@ -59,6 +59,7 @@ public class iTextDeferredSigningHelper {
     //fieldname
     public FirstStepOutput prepareToDeferredSigning(byte[] source, String fieldName)
             throws IOException, GeneralSecurityException {
+        logger.info("prepare for signing " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         FirstStepOutput fso = new FirstStepOutput();
 
         ByteArrayInputStream  bis       = new ByteArrayInputStream(source);
@@ -74,8 +75,9 @@ public class iTextDeferredSigningHelper {
         int size = Optional.ofNullable(tsaClient)
                            .map(c -> signatureLength + c.getTokenSizeEstimate())
                            .orElse(signatureLength);
+        logger.info("sign container " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         pdfSigner.signExternalContainer(external, size);
-
+        logger.info("sign container:done     " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         fso.setPreparedContent(bos.toByteArray());
         fso.setFieldName(pdfSigner.getFieldName());
         fso.setDigest(external.getDocDigest());
@@ -101,7 +103,7 @@ public class iTextDeferredSigningHelper {
     public byte[] completeSigning(SecondStepInput secondStepInput) throws IOException, GeneralSecurityException {
 
         PdfPKCS7 sgn = createPkcs7Container(digest, secondStepInput.getCertificateChain());
-        sgn.setExternalDigest(secondStepInput.getaSignedHash(), null, encryptionAlgorithm);
+        sgn.setExternalDigest(secondStepInput.getSignedHash(), null, encryptionAlgorithm);
         byte[] encodedPKCS7 = sgn.getEncodedPKCS7(secondStepInput.getDocumentDigest(),
                                                   PdfSigner.CryptoStandard.CADES,
                                                   tsaClient,
@@ -119,7 +121,7 @@ public class iTextDeferredSigningHelper {
 
     }
 
-    private PdfPKCS7 createPkcs7Container(IExternalDigest digest, Certificate[] certificates) {
+    public PdfPKCS7 createPkcs7Container(IExternalDigest digest, Certificate[] certificates) {
         try {
             return new PdfPKCS7(null, certificates, hashAlgorithm, null, digest, false);
         } catch (GeneralSecurityException e) {
@@ -137,7 +139,6 @@ public class iTextDeferredSigningHelper {
                                                               null);
 
         return getMessageDigest().digest(attrBytes);
-
     }
 
     private MessageDigest getMessageDigest() {

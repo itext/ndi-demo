@@ -11,9 +11,9 @@ import com.itextpdf.adapters.ndi.signing.models.ContainerError;
 import com.itextpdf.adapters.ndi.signing.models.SigningStatus;
 import com.itextpdf.adapters.ndi.signing.models.Type;
 import com.itextpdf.adapters.ndi.signing.models.ExpectedCallback;
-import com.itextpdf.adapters.ndi.pdf.models.SecondStepInput;
-import com.itextpdf.adapters.ndi.pdf.iTextDeferredSigningHelper;
-import com.itextpdf.adapters.ndi.pdf.models.FirstStepOutput;
+import com.itextpdf.adapters.ndi.helper.models.SecondStepInput;
+import com.itextpdf.adapters.ndi.helper.iTextDeferredSigningHelper;
+import com.itextpdf.adapters.ndi.helper.models.FirstStepOutput;
 import com.itextpdf.signatures.IOcspClient;
 import com.itextpdf.signatures.ITSAClient;
 import com.itextpdf.signatures.PdfSignatureAppearance;
@@ -43,7 +43,6 @@ import java.util.concurrent.CompletionStage;
  * {@link NDIDocumentService#updateFromCallback(NDIDocument, NdiCallbackMessage)}
  */
 public class NDIDocumentService {
-
 
     private final static Logger logger = LoggerFactory.getLogger(NDIDocumentService.class);
 
@@ -138,10 +137,8 @@ public class NDIDocumentService {
         if (aMessage instanceof CallbackFirstLegMessage) {
             return processFirstCallback(aDocument, (CallbackFirstLegMessage) aMessage);
         }
-        //terminated states below
         if (aMessage instanceof CallbackSecondLegMessage) {
             return processSecondCallback(aDocument, (CallbackSecondLegMessage) aMessage);
-
         }
         if (aMessage instanceof CallbackErrorMessage) {
             CallbackErrorMessage errorData = (CallbackErrorMessage) aMessage;
@@ -165,14 +162,20 @@ public class NDIDocumentService {
     }
 
     private CompletionStage<NDIDocument> processFirstCallback(NDIDocument aDocument, CallbackFirstLegMessage aMessage) {
+        logger.info("first callback");
         return CompletableFuture.supplyAsync(() -> aDocument)
+                                .thenApply(d->{logger.info("document"); return d;})
                                 .thenApply((d) -> this.setupCertificate(d, aMessage.getUsrCert()))
+                                .thenApply(d->{logger.info("setup`s been set"); return d;})
                                 //populate oscp - optionally
                                 .thenApply(this::prepareForDeferredSigning)
                                 .thenApply(this::fillinChallengeCode)
                                 .thenCompose(d -> this.sendDocumentForSigning(d).thenApply(v -> d))
                                 .thenApply(d -> changeStatus(d, SigningStatus.PREPARED_FOR_SIGNING))
-                                .exceptionally(t -> changeStatus(aDocument, SigningStatus.TERMINATED));
+                                .exceptionally(t -> {
+                                    logger.error(t.getMessage(), t);
+                                    return changeStatus(aDocument, SigningStatus.TERMINATED);
+                                });
     }
 
     private NDIDocument prepareForDeferredSigning(NDIDocument aDocument) {
@@ -269,7 +272,7 @@ public class NDIDocumentService {
         byte[] secondDigest = signingHelper.calculateSecondDigest(aDocument.getHash(),
                                                                   aDocument.getCertificatesChain());
         String hexencodedDigest = Hex.toHexString(secondDigest).toUpperCase();
-        request.setDocumentSecondDigest(hexencodedDigest);
+        request.setDocHash(hexencodedDigest);
 
         String aNonce = nonceGenerator.generate();
         request.setNonce(aNonce);
@@ -288,7 +291,8 @@ public class NDIDocumentService {
     }
 
     private void registerInValidator(NDIDocument aDocument, String aNonce) {
-        ExpectedCallback ec = new ExpectedCallback(aNonce, aDocument.getSignatureRef(),
+        ExpectedCallback ec = new ExpectedCallback(aNonce,
+                                                   aDocument.getSignatureRef(),
                                                    aDocument.getExpiresAt());
         callbackValidator.addToWaitingList(ec);
     }

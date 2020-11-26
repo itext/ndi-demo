@@ -19,7 +19,7 @@ public class HashSigningRequest {
     private String docName;
 
     /** The hash of the document`s attributes bytes*/
-    private String documentSecondDigest;
+    private String docHash;
 
     /** MAX 6 Digit challenge code meant for display on the user's form factor for verification.*/
     //    for now, we can not use a challenge code with  leading zeros
@@ -47,12 +47,12 @@ public class HashSigningRequest {
         this.docName = docName;
     }
 
-    public String getDocumentSecondDigest() {
-        return documentSecondDigest;
+    public String getDocHash() {
+        return docHash;
     }
 
-    public void setDocumentSecondDigest(String documentSecondDigest) {
-        this.documentSecondDigest = documentSecondDigest;
+    public void setDocHash(String docHash) {
+        this.docHash = docHash;
     }
 
     public Integer getChallengeCode() {

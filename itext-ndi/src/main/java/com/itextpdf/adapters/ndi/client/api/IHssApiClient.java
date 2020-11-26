@@ -20,6 +20,8 @@ public interface IHssApiClient {
      * certificate of the user from the mobile soft token (via the client's callback uri). The client may then
      * optionally proceed with the creation of a PAdES document hash, which may require OCSP responses and timestamp
      * tokens.
+     *
+     *  "client_id=&client_notification_token=&response_type=&nonce="
      */
     String QR_AUTH_ENDPOINT = HSS_DOMAIN + "/sign-ref";
     /**
@@ -27,6 +29,8 @@ public interface IHssApiClient {
      * consent for signing on a document hash. This endpoint is applicable to both QR and PN flow.
      */
     String HASH_SIGNING_ENPOINT = HSS_DOMAIN + "/sign-hash";
+
+
 
      /**
      * Initialises a signing process, returns data to encode as QrCode.
