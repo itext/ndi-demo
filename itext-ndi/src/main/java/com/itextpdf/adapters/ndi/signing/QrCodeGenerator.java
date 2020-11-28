@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.signing.converters;
+package com.itextpdf.adapters.ndi.signing;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;

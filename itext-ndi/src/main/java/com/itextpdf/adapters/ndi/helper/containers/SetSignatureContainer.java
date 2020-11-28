@@ -7,8 +7,8 @@ import com.itextpdf.signatures.IExternalSignatureContainer;
 import java.io.InputStream;
 
 /**
- * An external container that supposed to be used for putting PKCS#7 signature in the prepared by
- * {@link PreSignContainer} pdf document
+ * An external container that supposed to be used for putting CMS encoded signature content in the prepared by
+ * {@link NdiBlankSignatureContainer} pdf document
  */
 public class SetSignatureContainer implements IExternalSignatureContainer {
 

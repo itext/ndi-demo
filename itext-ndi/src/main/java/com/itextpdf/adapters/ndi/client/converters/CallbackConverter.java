@@ -2,6 +2,8 @@ package com.itextpdf.adapters.ndi.client.converters;
 
 
 import com.itextpdf.adapters.ndi.client.models.callback.*;
+import com.itextpdf.adapters.ndi.client.models.callback.common.ErrorSubtypes;
+import com.itextpdf.adapters.ndi.client.models.callback.common.ErrorTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

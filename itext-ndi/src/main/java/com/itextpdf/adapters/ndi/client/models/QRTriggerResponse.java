@@ -1,6 +1,8 @@
 package com.itextpdf.adapters.ndi.client.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
 /**
  * First leg.
@@ -13,14 +15,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * "nonce": "string"
  * }
  */
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class QRTriggerResponse {
 
     /** Unix timestamp in seconds that indicates when the Document Signing Session expires */
-    @JsonProperty("expires_in")
     private Long expiresIn;
 
     /** The identifier of the Document Signing Session in the format of a UUIDv4.  Should be QR-encoded. */
-    @JsonProperty("sign_ref")
     private String signRef;
 
     /** The same as in request {@see PNRtiggerRequest#nonce} */

@@ -6,7 +6,8 @@
     <title>
         Signing
     </title>
-    <script crossorigin="anonymous" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" src="https://code.jquery.com/jquery-3.4.1.min.js">
+    <script crossorigin="anonymous" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            src="https://code.jquery.com/jquery-3.4.1.min.js">
     </script>
     <style>
                 * {
@@ -17,19 +18,20 @@
 
 .card {
     width: 420px;
-    /* min-height: 250px; */
-    /* margin-right: -300px; */
+
     margin: auto;
     text-align: center;
-    /* border: 1px solid gray; */
-    padding: 45px 40px;
+    border: 1px solid gray;
+    padding: 0px 0px 45px;
     background: white;
     margin-top: 150px;
     box-sizing: border-box;
 }
 
+
 body {
     background: #bdbdbd;
+    color: #333;
 }
 h1, h2, h3, h4{
 font-weight: normal;
@@ -42,14 +44,23 @@ h1.header {
     position: absolute;
     top: 80px;
     width: 100%;
+    text-decoration: none;
+    }
+        h1.header a{
+    text-decoration: none;
+    font-size: 30px;
+    color: #333;
     }
 h4 {
-    font-weight: normal;
-    font-size: 17px;
+    font-size: 18px;
     text-align: center;
+    line-height: 60px;
+    border-bottom: 1px solid gray;
+    margin-bottom: 0;
 }
 .result-file{
-
+    display: block;
+    padding-top: 45px;
 }
 .result-file p{
     font-size: 17px;
@@ -146,13 +157,12 @@ margin-right: 4%;
 text-align: center;
 width: 100%;
 }
-            </style>
+
+    </style>
     </meta>
 </head>
 <body>
-<h1 class="header">
-    ITEXT+NDI demo
-</h1>
+<h1 class="header"><a href="/">ITEXT+NDI demo</a></h1>
 <div class="card">
     <h4>
         Signing of
@@ -166,7 +176,7 @@ width: 100%;
     </h4>
     <div class="qr-code" style="display: none;">
     </div>
-    <div class="challenge-code" style="display:none; width: 300px;">
+    <div class="challenge-code" style="display:none;">
         <p>
             Challenge code
         </p>
@@ -175,9 +185,7 @@ width: 100%;
     </div>
     <div class="result-file" style="display: none;">
         <p>
-                    <span>
-                        Result:
-                    </span>
+           <span>Result: </span>
         </p>
     </div>
 
@@ -210,20 +218,23 @@ function resultLink(signRef){
                            $(".challenge-code").remove();
                            $('<a href="/files/'+fileId+'/download">Download signed document</a>').appendTo(".result-file p");
                            $(".result-file").show();
-    }) .fail(function(response) {
-    alert('Error: ' + response.responseText);
-});;
+    })
+    .fail(function(response) {
+            alert('Error: ' + response.responseText);
+    });;
 }
 
 
 $(document).ready(function(){
  $.post("/ndi/sign?fileRef=@fileId&type=QR")
                 .then(qrCodePromise)
-                .then(challengeCodePromise);
+                .then(challengeCodePromise)
+                .then(resultLink);
 
 
 
 })
-        </script>
+
+</script>
 </body>
 </html>

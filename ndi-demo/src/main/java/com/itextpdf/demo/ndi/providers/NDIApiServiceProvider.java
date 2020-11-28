@@ -1,6 +1,6 @@
 package com.itextpdf.demo.ndi.providers;
 
-import com.itextpdf.adapters.ndi.client.NDIApiClientService;
+import com.itextpdf.adapters.ndi.client.NDIApiClient;
 import com.itextpdf.adapters.ndi.client.http.IHttpClient;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
 import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
@@ -10,7 +10,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 @Singleton
-public class NDIApiServiceProvider implements Provider<NDIApiClientService> {
+public class NDIApiServiceProvider implements Provider<NDIApiClient> {
 
 
     private INotificationTokenGenerator notificationTokenGenerator;
@@ -29,8 +29,8 @@ public class NDIApiServiceProvider implements Provider<NDIApiClientService> {
     }
 
     @Override
-    public NDIApiClientService get() {
+    public NDIApiClient get() {
 
-        return new NDIApiClientService(config, notificationTokenGenerator, client);
+        return new NDIApiClient(config, notificationTokenGenerator, client);
     }
 }

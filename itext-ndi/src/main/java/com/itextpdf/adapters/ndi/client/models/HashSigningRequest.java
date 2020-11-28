@@ -1,5 +1,8 @@
 package com.itextpdf.adapters.ndi.client.models;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+
 /**
  * Payload for the hash signing request (HSS second leg).
  *
@@ -13,6 +16,7 @@ package com.itextpdf.adapters.ndi.client.models;
  * "nonce": "string"
  * }
  */
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class HashSigningRequest {
 
     /** The name of the document that the user is signing on. */

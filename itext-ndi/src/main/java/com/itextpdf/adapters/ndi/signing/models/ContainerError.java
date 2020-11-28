@@ -1,6 +1,6 @@
 package com.itextpdf.adapters.ndi.signing.models;
 
-import com.itextpdf.adapters.ndi.client.models.callback.ErrorTypes;
+import com.itextpdf.adapters.ndi.client.models.callback.common.ErrorTypes;
 
 public class ContainerError {
 

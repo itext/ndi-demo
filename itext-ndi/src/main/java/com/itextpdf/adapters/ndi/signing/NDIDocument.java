@@ -30,7 +30,6 @@ public class NDIDocument {
 
     private final String userName;
 
-
     /**
      * the Base64 encoded Qr code  to be displayed. Null for the document of the PN {@link Type}
      */
@@ -65,7 +64,7 @@ public class NDIDocument {
     /**
      * OSCP responses for the certificateChain
      */
-    private List<byte[]> oscp;
+    private List<byte[]> ocsp;
 
     /**
      * The content that is ready for the placement of a PKCS#7 container
@@ -90,6 +89,7 @@ public class NDIDocument {
         this.userName = userId;
         this.expiresAt = expiresAt;
     }
+
 
 
     public LocalDateTime getExpiresAt() {
@@ -117,12 +117,12 @@ public class NDIDocument {
     }
 
 
-    public List<byte[]> getOscp() {
-        return oscp;
+    public List<byte[]> getOcsp() {
+        return ocsp;
     }
 
-    void setOscp(List<byte[]> oscp) {
-        this.oscp = oscp;
+    void setOcsp(List<byte[]> ocsp) {
+        this.ocsp = ocsp;
     }
 
     public byte[] getPreparedContent() {

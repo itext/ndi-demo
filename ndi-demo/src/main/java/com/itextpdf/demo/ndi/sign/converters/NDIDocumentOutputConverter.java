@@ -9,7 +9,7 @@ import com.itextpdf.adapters.ndi.signing.NDIDocument;
 
 import java.util.Optional;
 
-public class NDIDocumentConverter {
+public class NDIDocumentOutputConverter {
 
 
     public Either<PdfFile, ContainerError> toOutput(NDIDocument aDocument) {

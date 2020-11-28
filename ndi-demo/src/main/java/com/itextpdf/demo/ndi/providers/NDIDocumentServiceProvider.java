@@ -1,7 +1,7 @@
 package com.itextpdf.demo.ndi.providers;
 
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
-import com.itextpdf.adapters.ndi.signing.converters.QrCodeGenerator;
+import com.itextpdf.adapters.ndi.signing.QrCodeGenerator;
 import com.itextpdf.adapters.ndi.signing.CallbackValidator;
 import com.itextpdf.adapters.ndi.signing.NDIDocumentService;
 import com.itextpdf.adapters.ndi.signing.api.IChainGenerator;

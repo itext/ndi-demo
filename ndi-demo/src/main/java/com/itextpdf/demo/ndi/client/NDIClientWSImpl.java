@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.itextpdf.adapters.ndi.client.converters.ApiModelsConverter;
 import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
 import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
-import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParms;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParams;
 import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 
 /** Ndi client implementation based on WSClient */
 public class NDIClientWSImpl implements IHssApiClient {
@@ -52,8 +51,8 @@ public class NDIClientWSImpl implements IHssApiClient {
     @Override
     public CompletionStage<InitCallQrResult> firstLeg(String aNonce) {
 
-        QRTriggerQueryParms requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
-                                                                     tokenProvider.getToken(), aNonce);
+        QRTriggerQueryParams requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
+                                                                      tokenProvider.getToken(), aNonce);
         WSRequest wsRequest = client.url(QR_AUTH_ENDPOINT)
                                     .setAuth(ndiConfig.getClientId(), ndiConfig.getClientSecret())
                                     .setQueryString(requestParams.toQueryString());
@@ -88,7 +87,7 @@ public class NDIClientWSImpl implements IHssApiClient {
                         logger.error(String.format("Second leg. Error message received. Code %d info: %s",
                                                    r.getStatus(),
                                                    r.getBody()));
-                        throw new NDIServiceException("Second leg. Error: " + r.toString());
+                        throw new NDIServiceException("Second leg. Error: " + r.getBody());
                     }
                     logger.info("success");
                 });

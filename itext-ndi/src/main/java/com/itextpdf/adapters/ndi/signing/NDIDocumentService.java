@@ -2,18 +2,19 @@ package com.itextpdf.adapters.ndi.signing;
 
 import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
 import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
-import com.itextpdf.adapters.ndi.client.models.callback.*;
+import com.itextpdf.adapters.ndi.client.models.callback.CallbackErrorMessage;
+import com.itextpdf.adapters.ndi.client.models.callback.CallbackFirstLegMessage;
+import com.itextpdf.adapters.ndi.client.models.callback.CallbackSecondLegMessage;
+import com.itextpdf.adapters.ndi.client.models.callback.NdiCallbackMessage;
+import com.itextpdf.adapters.ndi.client.models.callback.common.ErrorTypes;
+import com.itextpdf.adapters.ndi.helper.ITextDeferredSigningHelper;
+import com.itextpdf.adapters.ndi.helper.models.FirstStepOutput;
+import com.itextpdf.adapters.ndi.helper.models.SecondStepInput;
 import com.itextpdf.adapters.ndi.signing.api.IChainGenerator;
 import com.itextpdf.adapters.ndi.signing.api.IChallengeCodeGenerator;
 import com.itextpdf.adapters.ndi.signing.api.INonceGenerator;
-import com.itextpdf.adapters.ndi.signing.converters.QrCodeGenerator;
-import com.itextpdf.adapters.ndi.signing.models.ContainerError;
-import com.itextpdf.adapters.ndi.signing.models.SigningStatus;
-import com.itextpdf.adapters.ndi.signing.models.Type;
-import com.itextpdf.adapters.ndi.signing.models.ExpectedCallback;
-import com.itextpdf.adapters.ndi.helper.models.SecondStepInput;
-import com.itextpdf.adapters.ndi.helper.iTextDeferredSigningHelper;
-import com.itextpdf.adapters.ndi.helper.models.FirstStepOutput;
+import com.itextpdf.adapters.ndi.signing.converters.NDIDocumentConverter;
+import com.itextpdf.adapters.ndi.signing.models.*;
 import com.itextpdf.signatures.IOcspClient;
 import com.itextpdf.signatures.ITSAClient;
 import com.itextpdf.signatures.PdfSignatureAppearance;
@@ -21,8 +22,6 @@ import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
@@ -58,7 +57,9 @@ public class NDIDocumentService {
 
     private final CallbackValidator callbackValidator;
 
-    private final iTextDeferredSigningHelper signingHelper;
+    private final ITextDeferredSigningHelper signingHelper;
+
+    private NDIDocumentConverter ndiDocumentConverter = new NDIDocumentConverter();
 
     public NDIDocumentService(IHssApiClient ndiApi,
                               IChallengeCodeGenerator challengeCodeGenerator,
@@ -74,7 +75,7 @@ public class NDIDocumentService {
         this.chainGenerator = chainGenerator;
         this.qrCodeGenerator = qrCodeGenerator;
         this.callbackValidator = callbackValidator;
-        this.signingHelper = new iTextDeferredSigningHelper(tsaClient, ocspClient);
+        this.signingHelper = new ITextDeferredSigningHelper(tsaClient, ocspClient);
     }
 
     public PdfSignatureAppearance getAppearance() {
@@ -156,18 +157,24 @@ public class NDIDocumentService {
         return CompletableFuture.supplyAsync(() -> aDocument)
                                 .thenApply((d) -> this.completeSigning(d, aMessage.getSignature()))
                                 //add ltv optionally
-                                //                                .thenApply(this::addLTVToResult)
+                                .thenApply(this::addLTVToResult)
+                                .thenApply(this::addDocumentTimestampToResult)
                                 .thenApply(d -> changeStatus(d, SigningStatus.COMPLETED))
                                 .exceptionally(t -> changeStatus(aDocument, SigningStatus.TERMINATED));
     }
 
     private CompletionStage<NDIDocument> processFirstCallback(NDIDocument aDocument, CallbackFirstLegMessage aMessage) {
         logger.info("first callback");
+
         return CompletableFuture.supplyAsync(() -> aDocument)
-                                .thenApply(d->{logger.info("document"); return d;})
+                                .thenApply(d -> {
+                                    logger.info("document");
+                                    return d;
+                                })
                                 .thenApply((d) -> this.setupCertificate(d, aMessage.getUsrCert()))
-                                .thenApply(d->{logger.info("setup`s been set"); return d;})
                                 //populate oscp - optionally
+                                //.thenApplyAsync(this::setupOCSPifAvailible)
+
                                 .thenApply(this::prepareForDeferredSigning)
                                 .thenApply(this::fillinChallengeCode)
                                 .thenCompose(d -> this.sendDocumentForSigning(d).thenApply(v -> d))
@@ -181,12 +188,9 @@ public class NDIDocumentService {
     private NDIDocument prepareForDeferredSigning(NDIDocument aDocument) {
         try {
             //todo
-            FirstStepOutput fso = signingHelper.prepareToDeferredSigning(aDocument.getSource(),
-                                                                         aDocument.getFieldName());
-            aDocument.setPreparedContent(fso.getPreparedContent());
-            aDocument.setHash(fso.getDigest());
-            aDocument.setFieldName(fso.getFieldName());
-            return aDocument;
+            FirstStepInput  firstStepInput = ndiDocumentConverter.createFirstStepInput(aDocument);
+            FirstStepOutput fso            = signingHelper.prepareToDeferredSigning(firstStepInput);
+            return getUpdatedDocumentFromResult(aDocument, fso);
 
         } catch (IOException | GeneralSecurityException e) {
             final String errorMessage = String.format(
@@ -202,6 +206,13 @@ public class NDIDocumentService {
 
             throw new RuntimeException(e);
         }
+    }
+
+    private NDIDocument getUpdatedDocumentFromResult(NDIDocument aDocument, FirstStepOutput fso) {
+        aDocument.setPreparedContent(fso.getPreparedContent());
+        aDocument.setHash(fso.getDigest());
+        aDocument.setFieldName(fso.getFieldName());
+        return aDocument;
     }
 
     /**
@@ -222,15 +233,25 @@ public class NDIDocumentService {
         return aDocument;
     }
 
+    /**
+     * We must store our
+     *
+     * @param aDocument
+     * @return
+     */
+    private NDIDocument setupOCSPifAvailible(NDIDocument aDocument) {
+        Optional.ofNullable(aDocument.getCertificatesChain())
+                .map(signingHelper::getOCSP)
+                .ifPresent(aDocument::setOcsp);
+        return aDocument;
+    }
 
     private NDIDocument completeSigning(NDIDocument aDocument, String aSignedHash) {
         try {
             byte[] signedHashBytes = Hex.decode(aSignedHash);
-            SecondStepInput secondStepInput = new SecondStepInput(aDocument.getPreparedContent(),
-                                                                  aDocument.getFieldName(), aDocument.getHash(),
-                                                                  aDocument.getCertificatesChain(),
-                                                                  signedHashBytes);
-            byte[] signedDocument = signingHelper.completeSigning(secondStepInput);
+
+            SecondStepInput secondInput    = ndiDocumentConverter.createSecondStepInput(aDocument, signedHashBytes);
+            byte[]          signedDocument = signingHelper.completeSigning(secondInput);
             aDocument.setResult(signedDocument);
             return aDocument;
 
@@ -253,29 +274,47 @@ public class NDIDocumentService {
 
 
     private NDIDocument addLTVToResult(NDIDocument aDocument) {
-        ByteArrayOutputStream      padesLTOutput = new ByteArrayOutputStream();
-        final ByteArrayInputStream is            = new ByteArrayInputStream(aDocument.getResult());
-        signingHelper.addLtv(is, padesLTOutput);
-        aDocument.setResult(padesLTOutput.toByteArray());
-        return aDocument;
+        try {
+            byte[] result = signingHelper.addLtvInfo(aDocument.getResult(),
+                                                     aDocument.getFieldName());
+            aDocument.setResult(result);
+            return aDocument;
+        } catch (IOException | GeneralSecurityException e) {
+            final String errorMessage = String.format("Adding of ltv validation has failed. SignRef: %s",
+                                                      aDocument.getSignatureRef());
+            logger.error(errorMessage, e);
+            ContainerError error = new ContainerError();
+            error.setErrorDescription("Adding of ltv validation has failed. Reason: " + e.getMessage());
+            error.setError(ErrorTypes.UNRECOGNIZED_REASON.getValue());
+            aDocument.setError(error);
+            throw new RuntimeException(errorMessage, e);
+        }
     }
 
+    private NDIDocument addDocumentTimestampToResult(NDIDocument aDocument) {
+        try {
+            byte[] result = signingHelper.addTimestamp(aDocument.getResult());
+            aDocument.setResult(result);
+            return aDocument;
+        } catch (IOException | GeneralSecurityException e) {
+            final String errorMessage = String.format("Document timestamp cannot be added. SignRef: %s",
+                                                      aDocument.getSignatureRef());
+            logger.error(errorMessage, e);
+            ContainerError error = new ContainerError();
+            error.setErrorDescription("Document timestamp cannot be added.. Reason: " + e.getMessage());
+            error.setError(ErrorTypes.UNRECOGNIZED_REASON.getValue());
+            aDocument.setError(error);
+            throw new RuntimeException(errorMessage, e);
+        }
+    }
 
     private CompletionStage<NDIDocument> sendDocumentForSigning(NDIDocument aDocument) {
         logger.info("Hash signing function call");
 
-        HashSigningRequest request = new HashSigningRequest();
-        request.setSignRef(aDocument.getSignatureRef());
-        request.setDocName(aDocument.getDocName());
-        request.setChallengeCode(aDocument.getChallengeCode());
-
+        String aNonce = nonceGenerator.generate();
         byte[] secondDigest = signingHelper.calculateSecondDigest(aDocument.getHash(),
                                                                   aDocument.getCertificatesChain());
-        String hexencodedDigest = Hex.toHexString(secondDigest).toUpperCase();
-        request.setDocHash(hexencodedDigest);
-
-        String aNonce = nonceGenerator.generate();
-        request.setNonce(aNonce);
+        HashSigningRequest request = ndiDocumentConverter.convertToHashSigningRequest(aDocument, aNonce, secondDigest);
 
         return ndiApi.secondLeg(request)
                      .thenAccept((v) -> registerInValidator(aDocument, aNonce))
@@ -289,6 +328,7 @@ public class NDIDocumentService {
                          throw new RuntimeException(t);
                      });
     }
+
 
     private void registerInValidator(NDIDocument aDocument, String aNonce) {
         ExpectedCallback ec = new ExpectedCallback(aNonce,

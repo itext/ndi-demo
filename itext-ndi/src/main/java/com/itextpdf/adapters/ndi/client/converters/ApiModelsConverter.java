@@ -1,8 +1,8 @@
 package com.itextpdf.adapters.ndi.client.converters;
 
-import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParms;
-import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
 import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParams;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -19,12 +19,13 @@ public class ApiModelsConverter {
         InitCallQrResult result = new InitCallQrResult();
         result.setSignRef(response.getSignRef());
         result.setExpiresAt(calculateDeadline(response.getExpiresIn()));
+        result.setNonce(response.getNonce());
         result.setQrCodeData(qrData);
         return result;
     }
 
-    public QRTriggerQueryParms toQRQueryParam(String clientId, String notificationToken, String aNonce) {
-        QRTriggerQueryParms request = new QRTriggerQueryParms();
+    public QRTriggerQueryParams toQRQueryParam(String clientId, String notificationToken, String aNonce) {
+        QRTriggerQueryParams request = new QRTriggerQueryParams();
         request.setNonce(aNonce);
         request.setClientId(clientId);
         request.setClientNotificationToken(notificationToken);

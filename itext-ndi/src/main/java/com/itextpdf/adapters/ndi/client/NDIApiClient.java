@@ -11,7 +11,7 @@ import com.itextpdf.adapters.ndi.client.http.HttpResponse;
 import com.itextpdf.adapters.ndi.client.http.IHttpClient;
 import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
 import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
-import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParms;
+import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParams;
 import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
 import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
@@ -33,9 +33,9 @@ import static java.net.HttpURLConnection.HTTP_OK;
 /**
  * API client. Used underneath the {@see SimpleHttpClient } for web requests.
  */
-public class NDIApiClientService implements IHssApiClient {
+public class NDIApiClient implements IHssApiClient {
 
-    private static final Logger logger = LoggerFactory.getLogger(NDIApiClientService.class);
+    private static final Logger logger = LoggerFactory.getLogger(NDIApiClient.class);
 
     /**
      * Json content type
@@ -51,15 +51,16 @@ public class NDIApiClientService implements IHssApiClient {
     /** The configuration of the ndi instance */
     private final INDIInstanceConfig ndiConfig;
 
-    private final INotificationTokenGenerator tokenProvider;
 
     private final IHttpClient webClient;
 
-    public NDIApiClientService(INDIInstanceConfig ndiConfig,
-                               INotificationTokenGenerator tokenProvider, IHttpClient webClient) {
+    private final INotificationTokenGenerator tokenProvider;
+
+    public NDIApiClient(INDIInstanceConfig ndiConfig,  INotificationTokenGenerator tokenProvider, IHttpClient webClient
+                       ) {
         this.ndiConfig = ndiConfig;
-        this.tokenProvider = tokenProvider;
         this.webClient = webClient;
+        this.tokenProvider = tokenProvider;
     }
 
     private String getAuthHeader() {
@@ -97,8 +98,8 @@ public class NDIApiClientService implements IHssApiClient {
 
     @Override
     public CompletionStage<InitCallQrResult> firstLeg(String aNonce) {
-        QRTriggerQueryParms requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
-                                                                     tokenProvider.getToken(), aNonce);
+        QRTriggerQueryParams requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
+                                                                      tokenProvider.getToken(), aNonce);
 
         String query   = requestParams.toQueryString();
         String fullUrl = QR_AUTH_ENDPOINT + "?" + query;

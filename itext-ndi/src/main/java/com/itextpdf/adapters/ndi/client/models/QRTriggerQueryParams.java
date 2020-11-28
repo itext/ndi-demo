@@ -15,7 +15,7 @@ package com.itextpdf.adapters.ndi.client.models;
  * }
  */
 
-public class QRTriggerQueryParms {
+public class QRTriggerQueryParams {
 
     /**
      * urn:openid:params:grant-type:ciba

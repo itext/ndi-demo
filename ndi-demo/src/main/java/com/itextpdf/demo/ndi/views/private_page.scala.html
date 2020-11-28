@@ -14,12 +14,11 @@
 
 .card {
     width: 420px;
-    /* min-height: 250px; */
-    /* margin-right: -300px; */
+
     margin: auto;
     text-align: center;
-    /* border: 1px solid gray; */
-    padding: 45px 40px;
+    border: 1px solid gray;
+    padding: 0px 0px 45px;
     background: white;
     margin-top: 150px;
     box-sizing: border-box;
@@ -27,23 +26,37 @@
 
 body {
     background: #bdbdbd;
+    color: #333;
 }
 h1, h2, h3, h4{
 font-weight: normal;
 text-align: left;
 }
 h1.header {
+    text-decoration: none;
     font-size: 30px;
+
     text-align: center;
     /* margin-top: 100px; */
     position: absolute;
     top: 80px;
     width: 100%;
     }
+    h1.header a{
+    text-decoration: none;
+    font-size: 30px;
+    color: #333;
+    }
+
+    h3 a{
+        line-height: 60px;
+    }
 h4 {
-    font-weight: normal;
-    font-size: 17px;
+    font-size: 18px;
     text-align: center;
+    line-height: 60px;
+    border-bottom: 1px solid gray;
+    margin-bottom: 0;
 }
 .result-file{
 
@@ -63,12 +76,14 @@ font-size: 25px;
 form{
     text-align: left;
     width: 300px;
+    padding-top: 0px;
     margin: auto;
     }
 form h3 {
     font-weight: normal;
     margin-bottom: 25px;
     font-size: 20px;
+    text-align: center;
 
 }
 form input{
@@ -125,18 +140,18 @@ form input[type="submit"] {
     </meta>
 </head>
 <body>
-<h1 class="header">ITEXT+NDI demo</h1>
+<h1 class="header"><a href="/">ITEXT+NDI demo</a></h1>
 <div class="card">
-
+    <h4>File to sign</h4>
 @helper.form(action = com.itextpdf.demo.ndi.files.routes.FileController.upload, 'enctype -> "multipart/form-data") {
-    <h3>Please choose a file</h3>
+    <h3><a href="/files/tmpl">Use test document</a><br/>  or</h3>
     @if(!message.isEmpty){
     <div class="error">@message</div>
     }
     <input name="fileToSign" type="file" />
-    <input type="submit" value="Sign document"/>
+    <input type="submit" value="Confirm selection"/>
 }
-    <p>or <a href="/files/tmpl">Sign test document</a> </p>
+
 </div>
 </body>
 

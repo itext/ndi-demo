@@ -4,7 +4,7 @@ package com.itextpdf.adapters.ndi.client.http;
 import java.util.Map;
 
 /**
- * Web client which is being used by {@see NDIApiClientService} to call API
+ * Web client which is being used by {@see NDIApiClient} to call API
  */
 public interface IHttpClient {
 

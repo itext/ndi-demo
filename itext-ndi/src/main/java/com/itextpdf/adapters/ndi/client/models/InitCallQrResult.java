@@ -1,9 +1,36 @@
 package com.itextpdf.adapters.ndi.client.models;
 
 
-public class InitCallQrResult extends InitCallResult {
+import java.time.LocalDateTime;
+
+public class InitCallQrResult {
+
+    private String nonce;
+
+    /**
+     * The identifier of the Document Signing Session in the format of a UUIDv4.
+     */
+    private String signRef;
+
+    private LocalDateTime expiresAt;
 
     private String qrCodeData;
+
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+        this.expiresAt = expiresAt;
+    }
+
+    public String getSignRef() {
+        return signRef;
+    }
+
+    public void setSignRef(String signRef) {
+        this.signRef = signRef;
+    }
 
     public String getQrCodeData() {
         return qrCodeData;
@@ -11,5 +38,13 @@ public class InitCallQrResult extends InitCallResult {
 
     public void setQrCodeData(String qrCodeData) {
         this.qrCodeData = qrCodeData;
+    }
+
+    public String getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
     }
 }

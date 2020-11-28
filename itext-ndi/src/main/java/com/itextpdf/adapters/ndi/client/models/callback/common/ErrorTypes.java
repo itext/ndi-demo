@@ -1,4 +1,4 @@
-package com.itextpdf.adapters.ndi.client.models.callback;
+package com.itextpdf.adapters.ndi.client.models.callback.common;
 
 import java.util.Arrays;
 

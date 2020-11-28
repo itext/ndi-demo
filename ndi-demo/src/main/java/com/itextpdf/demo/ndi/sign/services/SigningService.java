@@ -9,7 +9,7 @@ import com.itextpdf.adapters.ndi.signing.NDIDocument;
 import com.itextpdf.adapters.ndi.signing.NDIDocumentService;
 import com.itextpdf.adapters.ndi.signing.models.ContainerError;
 import com.itextpdf.demo.ndi.files.PdfFile;
-import com.itextpdf.demo.ndi.sign.converters.NDIDocumentConverter;
+import com.itextpdf.demo.ndi.sign.converters.NDIDocumentOutputConverter;
 import com.itextpdf.demo.ndi.sign.models.NdiDocumentWrapper;
 import com.itextpdf.demo.ndi.sign.models.output.InitializationResult;
 import com.itextpdf.demo.ndi.sign.models.output.PresignResult;
@@ -29,7 +29,7 @@ public class SigningService implements ISigningService {
 
     private final CallbackConverter converter;
 
-    private final NDIDocumentConverter documentConverter;
+    private final NDIDocumentOutputConverter documentConverter;
 
     private final NDIDocumentWrapperRepository wrapperManager;
 
@@ -40,7 +40,7 @@ public class SigningService implements ISigningService {
 
     @Inject
     public SigningService(CallbackConverter converter,
-                          NDIDocumentConverter documentConverter,
+                          NDIDocumentOutputConverter documentConverter,
                           NDIDocumentWrapperRepository wrapperManager,
                           NDIDocumentService documentService,
                           CallbackValidator callbackValidator) {

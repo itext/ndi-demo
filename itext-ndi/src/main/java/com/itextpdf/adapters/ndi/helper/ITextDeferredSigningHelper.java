@@ -1,9 +1,10 @@
 package com.itextpdf.adapters.ndi.helper;
 
+import com.itextpdf.adapters.ndi.helper.containers.NdiBlankSignatureContainer;
 import com.itextpdf.adapters.ndi.helper.containers.SetSignatureContainer;
 import com.itextpdf.adapters.ndi.helper.models.FirstStepOutput;
-import com.itextpdf.adapters.ndi.helper.containers.NdiBlankSignatureContainer;
 import com.itextpdf.adapters.ndi.helper.models.SecondStepInput;
+import com.itextpdf.adapters.ndi.signing.models.FirstStepInput;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
@@ -12,7 +13,9 @@ import com.itextpdf.signatures.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
@@ -26,24 +29,28 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class iTextDeferredSigningHelper {
+public class ITextDeferredSigningHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(iTextDeferredSigningHelper.class);
+    private static final Logger logger = LoggerFactory.getLogger(ITextDeferredSigningHelper.class);
 
+    /**
+     * sha256 - hashing algorithm
+     */
     private static final String hashAlgorithm = DigestAlgorithms.SHA256;
 
-    /**Elliptic curve algorithm is being used for keys in NDI DSS*/
+    /** Elliptic curve algorithm is being used for keys in NDI DSS*/
     private static final String encryptionAlgorithm = "ECDSA";
 
     private static final BouncyCastleDigest digest = new BouncyCastleDigest();
+
+    private int signatureLength = 8192;
 
     private final ITSAClient tsaClient;
 
     private final IOcspClient ocspClient;
 
-    private int signatureLength = 12288;
 
-    public iTextDeferredSigningHelper(ITSAClient tsaClient, IOcspClient ocspClient) {
+    public ITextDeferredSigningHelper(ITSAClient tsaClient, IOcspClient ocspClient) {
         this.tsaClient = tsaClient;
         this.ocspClient = ocspClient;
     }
@@ -57,17 +64,17 @@ public class iTextDeferredSigningHelper {
     //prepared content
     //hash
     //fieldname
-    public FirstStepOutput prepareToDeferredSigning(byte[] source, String fieldName)
+    public FirstStepOutput prepareToDeferredSigning(FirstStepInput aFirstStepInput)
             throws IOException, GeneralSecurityException {
         logger.info("prepare for signing " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         FirstStepOutput fso = new FirstStepOutput();
 
-        ByteArrayInputStream  bis       = new ByteArrayInputStream(source);
+        ByteArrayInputStream  bis       = new ByteArrayInputStream(aFirstStepInput.getSource());
         PdfReader             reader    = new PdfReader(bis);
         ByteArrayOutputStream bos       = new ByteArrayOutputStream();
         PdfSigner             pdfSigner = new PdfSigner(reader, bos, new StampingProperties().useAppendMode());
 
-        Optional.ofNullable(fieldName).ifPresent(pdfSigner::setFieldName);
+        Optional.ofNullable(aFirstStepInput.getFieldName()).ifPresent(pdfSigner::setFieldName);
 
         MessageDigest              md       = this.getMessageDigest();
         NdiBlankSignatureContainer external = new NdiBlankSignatureContainer(md);
@@ -75,9 +82,7 @@ public class iTextDeferredSigningHelper {
         int size = Optional.ofNullable(tsaClient)
                            .map(c -> signatureLength + c.getTokenSizeEstimate())
                            .orElse(signatureLength);
-        logger.info("sign container " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         pdfSigner.signExternalContainer(external, size);
-        logger.info("sign container:done     " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         fso.setPreparedContent(bos.toByteArray());
         fso.setFieldName(pdfSigner.getFieldName());
         fso.setDigest(external.getDocDigest());
@@ -85,16 +90,15 @@ public class iTextDeferredSigningHelper {
     }
 
     //input
-    //preparedContent
-    //hash
+    //byte[] preparedContent
+    //byte[] hash
     //oscp
     //tsa
 
     //output
-    //result
+    //byte[] result
 
     /**
-     *
      * @param secondStepInput
      * @return
      * @throws IOException
@@ -107,7 +111,7 @@ public class iTextDeferredSigningHelper {
         byte[] encodedPKCS7 = sgn.getEncodedPKCS7(secondStepInput.getDocumentDigest(),
                                                   PdfSigner.CryptoStandard.CADES,
                                                   tsaClient,
-                                                  getOCSP(secondStepInput.getCertificateChain()),
+                                                  null,
                                                   null);
 
 
@@ -125,17 +129,18 @@ public class iTextDeferredSigningHelper {
         try {
             return new PdfPKCS7(null, certificates, hashAlgorithm, null, digest, false);
         } catch (GeneralSecurityException e) {
+            logger.error("Pkcs7 container cannot be created: " + e.getMessage());
             throw new RuntimeException("Pkcs7 container cannot be created: " + e.getMessage());
         }
     }
 
     public byte[] calculateSecondDigest(byte[] aDigest, Certificate[] aCertificates) {
 
-        PdfPKCS7 sgn = createPkcs7Container(digest, aCertificates);
+        PdfPKCS7 sgn = createPkcs7Container(digest, aCertificates) ;
 
         byte[] attrBytes = sgn.getAuthenticatedAttributeBytes(aDigest,
                                                               PdfSigner.CryptoStandard.CADES,
-                                                              getOCSP(aCertificates),
+                                                              null,
                                                               null);
 
         return getMessageDigest().digest(attrBytes);
@@ -150,42 +155,45 @@ public class iTextDeferredSigningHelper {
     }
 
 
-    public void addLtv(InputStream is, OutputStream outputStream) {
-        try {
-            PdfReader reader = new PdfReader(is);
-            PdfDocument pdfDoc = new PdfDocument(reader, new PdfWriter(outputStream),
-                                                 new StampingProperties().useAppendMode());
-
-            LtvVerification v             = new LtvVerification(pdfDoc);
-            SignatureUtil   signatureUtil = new SignatureUtil(pdfDoc);
-
-            List<String> names         = signatureUtil.getSignatureNames();
-            String       lastSignature = names.get(names.size() - 1);
-
-            v.addVerification(lastSignature, ocspClient, null,
-                              LtvVerification.CertificateOption.SIGNING_CERTIFICATE,
-                              LtvVerification.Level.OCSP,
-                              LtvVerification.CertificateInclusion.YES);
-
-            v.merge();
-            PdfSigner ps = new PdfSigner(reader, outputStream, new StampingProperties().useAppendMode());
-            ps.timestamp(tsaClient, null);
-        } catch (GeneralSecurityException | IOException e) {
-            e.printStackTrace();
-        }
+    public byte[] addLtvInfo(byte[] aDocContent, String aSignatureName)
+            throws java.io.IOException, GeneralSecurityException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ByteArrayInputStream  bis = new ByteArrayInputStream(aDocContent);
+        PdfDocument document = new PdfDocument(new PdfReader(bis),
+                                               new PdfWriter(bos),
+                                               new StampingProperties().useAppendMode());
+        LtvVerification ltvVerification = new LtvVerification(document);
+        ltvVerification.addVerification(aSignatureName,
+                                        ocspClient, null,
+                                        LtvVerification.CertificateOption.WHOLE_CHAIN,
+                                        LtvVerification.Level.OCSP,
+                                        LtvVerification.CertificateInclusion.YES);
+        ltvVerification.merge();
+        document.close();
+        return bos.toByteArray();
     }
 
-    private List<byte[]> getOCSP(Certificate[] chain) {
+    public List<byte[]> getOCSP(Certificate[] chain) {
 
         if (null == this.ocspClient || chain.length == 0) {
+            logger.error("chain is empty");
             return Collections.emptyList();
         }
-
-
         return IntStream.range(0, chain.length - 1)
                         .mapToObj(j -> ocspClient.getEncoded((X509Certificate) chain[j], (X509Certificate) chain[j + 1],
                                                              null))
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
+    }
+
+    public byte[] addTimestamp(byte[] aDocContent) throws IOException, GeneralSecurityException {
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ByteArrayInputStream  bis = new ByteArrayInputStream(aDocContent);
+        PdfSigner signer = new PdfSigner(new PdfReader(bis),
+                                         bos,
+                                         new StampingProperties().useAppendMode());
+        signer.timestamp(tsaClient, "timestampSig1");
+        return bos.toByteArray();
     }
 }

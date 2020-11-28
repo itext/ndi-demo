@@ -1,5 +1,8 @@
 package com.itextpdf.adapters.ndi.client.models.callback;
 
+import com.itextpdf.adapters.ndi.client.models.callback.common.ErrorSubtypes;
+import com.itextpdf.adapters.ndi.client.models.callback.common.ErrorTypes;
+
 /**
  * Callback with an error message.
  * Contains an error description. It appears in the case when any leg was not completed successfully.
