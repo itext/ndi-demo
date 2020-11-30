@@ -1,16 +1,33 @@
 package com.itextpdf.adapters.ndi.helper;
 
+import com.itextpdf.adapters.ndi.helper.containers.NdiBlankSignatureContainer;
+import com.itextpdf.adapters.ndi.helper.containers.SetSignatureContainer;
 import com.itextpdf.adapters.ndi.helper.models.FirstStepOutput;
 import com.itextpdf.adapters.ndi.helper.models.SecondStepInput;
 import com.itextpdf.adapters.ndi.signing.models.FirstStepInput;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.signatures.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ITextDeferredSigningHelper {
 
@@ -25,6 +42,8 @@ public class ITextDeferredSigningHelper {
     private static final String encryptionAlgorithm = "ECDSA";
 
     private static final BouncyCastleDigest digest = new BouncyCastleDigest();
+
+    private static final PdfSigner.CryptoStandard cryptoStandard = PdfSigner.CryptoStandard.CADES;
 
     private int signatureLength = 8192;
 
@@ -43,8 +62,24 @@ public class ITextDeferredSigningHelper {
     //fieldname
     public FirstStepOutput prepareToDeferredSigning(FirstStepInput aFirstStepInput)
             throws IOException, GeneralSecurityException {
-        return FirstStepOutput.createDummyOutput(aFirstStepInput.getSource());
-//        return fso;
+        logger.info("prepare for signing " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        FirstStepOutput fso = new FirstStepOutput();
+
+        ByteArrayInputStream  bis       = new ByteArrayInputStream(aFirstStepInput.getSource());
+        PdfReader             reader    = new PdfReader(bis);
+        ByteArrayOutputStream bos       = new ByteArrayOutputStream();
+        PdfSigner             pdfSigner = new PdfSigner(reader, bos, new StampingProperties().useAppendMode());
+
+        Optional.ofNullable(aFirstStepInput.getFieldName()).ifPresent(pdfSigner::setFieldName);
+
+        MessageDigest              md       = this.getMessageDigest();
+        NdiBlankSignatureContainer external = new NdiBlankSignatureContainer(md);
+
+        pdfSigner.signExternalContainer(external, signatureLength);
+        fso.setPreparedContent(bos.toByteArray());
+        fso.setFieldName(pdfSigner.getFieldName());
+        fso.setDigest(external.getDocDigest());
+        return fso;
     }
 
     //input
@@ -64,7 +99,22 @@ public class ITextDeferredSigningHelper {
      */
     public byte[] completeSigning(SecondStepInput secondStepInput) throws IOException, GeneralSecurityException {
 
-        return secondStepInput.getPreparedContent();
+        PdfPKCS7 sgn = createPkcs7Container(digest, secondStepInput.getCertificateChain());
+        sgn.setExternalDigest(secondStepInput.getSignedHash(), null, encryptionAlgorithm);
+        byte[] encodedPKCS7 = sgn.getEncodedPKCS7(secondStepInput.getDocumentDigest(),
+                                                  cryptoStandard,
+                                                  null,
+                                                  null,
+                                                  null);
+
+
+        ByteArrayOutputStream signedOutput = new ByteArrayOutputStream();
+        ByteArrayInputStream  is           = new ByteArrayInputStream(secondStepInput.getPreparedContent());
+        PdfReader             reader       = new PdfReader(is);
+        PdfDocument           doc          = new PdfDocument(reader);
+        PdfSigner.signDeferred(doc, secondStepInput.getFieldName(), signedOutput,
+                               new SetSignatureContainer(encodedPKCS7));
+        return signedOutput.toByteArray();
 
     }
 
@@ -79,7 +129,14 @@ public class ITextDeferredSigningHelper {
 
     public byte[] calculateSecondDigest(byte[] aDigest, Certificate[] aCertificates) {
 
-        return aDigest;
+        PdfPKCS7 sgn = createPkcs7Container(digest, aCertificates) ;
+
+        byte[] attrBytes = sgn.getAuthenticatedAttributeBytes(aDigest,
+                                                              cryptoStandard,
+                                                              null,
+                                                              null);
+
+        return getMessageDigest().digest(attrBytes);
     }
 
     private MessageDigest getMessageDigest() {

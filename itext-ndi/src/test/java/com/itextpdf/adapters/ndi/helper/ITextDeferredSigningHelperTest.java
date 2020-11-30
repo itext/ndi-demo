@@ -126,7 +126,7 @@ public class ITextDeferredSigningHelperTest {
 
 
     @Test
-    @Ignore
+
     public void testSigning()
             throws GeneralSecurityException, IOException, URISyntaxException {
 
