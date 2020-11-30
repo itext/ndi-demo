@@ -75,7 +75,7 @@ public class NDIDocumentService {
         this.chainGenerator = chainGenerator;
         this.qrCodeGenerator = qrCodeGenerator;
         this.callbackValidator = callbackValidator;
-        this.signingHelper = new ITextDeferredSigningHelper();
+        this.signingHelper = new ITextDeferredSigningHelper(tsaClient, ocspClient);
     }
 
     public PdfSignatureAppearance getAppearance() {
@@ -156,6 +156,9 @@ public class NDIDocumentService {
                                                                CallbackSecondLegMessage aMessage) {
         return CompletableFuture.supplyAsync(() -> aDocument)
                                 .thenApply((d) -> this.completeSigning(d, aMessage.getSignature()))
+                                //add ltv optionally
+                                .thenApply(this::addLTVToResult)
+                                .thenApply(this::addDocumentTimestampToResult)
                                 .thenApply(d -> changeStatus(d, SigningStatus.COMPLETED))
                                 .exceptionally(t -> changeStatus(aDocument, SigningStatus.TERMINATED));
     }
@@ -249,9 +252,46 @@ public class NDIDocumentService {
         }
     }
 
+
     private NDIDocument fillinChallengeCode(NDIDocument aDocument) {
         aDocument.setChallengeCode(challengeCodeGenerator.generate());
         return aDocument;
+    }
+
+
+    private NDIDocument addLTVToResult(NDIDocument aDocument) {
+        try {
+            byte[] result = signingHelper.addLtvInfo(aDocument.getResult(),
+                                                     aDocument.getFieldName());
+            aDocument.setResult(result);
+            return aDocument;
+        } catch (IOException | GeneralSecurityException e) {
+            final String errorMessage = String.format("Adding of ltv validation has failed. SignRef: %s",
+                                                      aDocument.getSignatureRef());
+            logger.error(errorMessage, e);
+            ContainerError error = new ContainerError();
+            error.setErrorDescription("Adding of ltv validation has failed. Reason: " + e.getMessage());
+            error.setError(ErrorTypes.UNRECOGNIZED_REASON.getValue());
+            aDocument.setError(error);
+            throw new RuntimeException(errorMessage, e);
+        }
+    }
+
+    private NDIDocument addDocumentTimestampToResult(NDIDocument aDocument) {
+        try {
+            byte[] result = signingHelper.addTimestamp(aDocument.getResult());
+            aDocument.setResult(result);
+            return aDocument;
+        } catch (IOException | GeneralSecurityException e) {
+            final String errorMessage = String.format("Document timestamp cannot be added. SignRef: %s",
+                                                      aDocument.getSignatureRef());
+            logger.error(errorMessage, e);
+            ContainerError error = new ContainerError();
+            error.setErrorDescription("Document timestamp cannot be added.. Reason: " + e.getMessage());
+            error.setError(ErrorTypes.UNRECOGNIZED_REASON.getValue());
+            aDocument.setError(error);
+            throw new RuntimeException(errorMessage, e);
+        }
     }
 
     private CompletionStage<NDIDocument> sendDocumentForSigning(NDIDocument aDocument) {

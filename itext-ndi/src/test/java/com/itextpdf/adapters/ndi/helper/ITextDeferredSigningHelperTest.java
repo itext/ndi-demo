@@ -31,7 +31,7 @@ import java.util.List;
 
 public class ITextDeferredSigningHelperTest {
 
-    ITextDeferredSigningHelper helper = new ITextDeferredSigningHelper();
+    ITextDeferredSigningHelper helper = new ITextDeferredSigningHelper(new FreeTSAClient(), new OcspClientBouncyCastle(null));
 
     private String sourceRoot = "./src/test/resources/";
     private String destRoot = "./src/test/resources/";

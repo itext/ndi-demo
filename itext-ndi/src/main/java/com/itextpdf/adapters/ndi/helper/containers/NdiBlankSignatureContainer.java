@@ -27,8 +27,8 @@ public class NdiBlankSignatureContainer extends ExternalBlankSignatureContainer 
 
     private static PdfName filter = PdfName.Adobe_PPKLite;
 
-//    private static PdfName subFilter = PdfName.ETSI_CAdES_DETACHED;
-        private static PdfName subFilter = PdfName.Adbe_pkcs7_detached;
+    private static PdfName subFilter = PdfName.ETSI_CAdES_DETACHED;
+//        private static PdfName subFilter = PdfName.Adbe_pkcs7_detached;
 
     private byte[] docDigest;
 
