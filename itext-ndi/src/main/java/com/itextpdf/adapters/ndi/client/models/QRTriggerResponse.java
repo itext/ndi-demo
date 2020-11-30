@@ -52,4 +52,6 @@ public class QRTriggerResponse {
         this.nonce = nonce;
     }
 
+
+
 }

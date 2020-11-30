@@ -47,4 +47,6 @@ public class InitCallQrResult {
     public void setNonce(String nonce) {
         this.nonce = nonce;
     }
+
+
 }

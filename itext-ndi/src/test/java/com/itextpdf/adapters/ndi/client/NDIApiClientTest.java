@@ -9,6 +9,7 @@ import com.itextpdf.adapters.ndi.signing.ClientNotificationTokenGenerator;
 import com.itextpdf.adapters.ndi.signing.NonceGenerator;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class NDIApiClientTest {
@@ -36,6 +37,7 @@ public class NDIApiClientTest {
         Assert.assertNotNull(result.getSignRef());
         Assert.assertNotNull(result.getQrCodeData());
         System.out.println(result.getSignRef());
+        System.out.println(result.getQrCodeData());
     }
 
 }

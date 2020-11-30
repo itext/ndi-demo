@@ -1,5 +1,7 @@
 package com.itextpdf.adapters.ndi.helper.models;
 
+import org.bouncycastle.util.encoders.Hex;
+
 public class FirstStepOutput {
 
     private String fieldName;
@@ -30,5 +32,13 @@ public class FirstStepOutput {
 
     public byte[] getPreparedContent() {
         return preparedContent;
+    }
+
+    public static FirstStepOutput createDummyOutput(byte[] content){
+        FirstStepOutput fso = new FirstStepOutput();
+        fso.setPreparedContent(content);
+        fso.setFieldName("Signature1");
+        fso.setDigest(Hex.decode("54af74d1a5d85608db2fa19aac06ed77aa2688b5892bac8e97ac31f8702c3a39"));
+        return fso;
     }
 }
