@@ -79,14 +79,7 @@ public class ITextDeferredSigningHelper {
 
     public byte[] calculateSecondDigest(byte[] aDigest, Certificate[] aCertificates) {
 
-        PdfPKCS7 sgn = createPkcs7Container(digest, aCertificates) ;
-
-        byte[] attrBytes = sgn.getAuthenticatedAttributeBytes(aDigest,
-                                                              PdfSigner.CryptoStandard.CADES,
-                                                              null,
-                                                              null);
-
-        return getMessageDigest().digest(attrBytes);
+        return aDigest;
     }
 
     private MessageDigest getMessageDigest() {

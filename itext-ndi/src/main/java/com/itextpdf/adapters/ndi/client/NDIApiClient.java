@@ -48,9 +48,7 @@ public class NDIApiClient implements IHssApiClient {
     private static final ApiModelsConverter converter = new ApiModelsConverter();
 
 
-    /**
-     * The configuration of the ndi instance
-     */
+    /** The configuration of the ndi instance */
     private final INDIInstanceConfig ndiConfig;
 
 
@@ -100,14 +98,48 @@ public class NDIApiClient implements IHssApiClient {
 
     @Override
     public CompletionStage<InitCallQrResult> firstLeg(String aNonce) {
+        QRTriggerQueryParams requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
+                                                                      tokenProvider.getToken(), aNonce);
 
-        return CompletableFuture.supplyAsync(()->new InitCallQrResult());
-
+        String query   = requestParams.toQueryString();
+        String fullUrl = QR_AUTH_ENDPOINT + "?" + query;
+        logger.info("time " +LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        logger.info("first leg, request: " + fullUrl);
+        return CompletableFuture.supplyAsync(() -> webClient.get(fullUrl, getAuthHeader()))
+                                .thenApply(r -> {
+                                    if (this.hasErrors(r)) {
+                                        logger.error(
+                                                String.format("First leg. Error message received. Code %d info: %s",
+                                                              r.getStatus(),
+                                                              r.getBody()));
+                                        throw new NDIServiceException("First leg error: " + r.getBody());
+                                    }
+                                    logger.info("body: " + r.getBody());
+                                    logger.info(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                                    QRTriggerResponse tr = mapToObject(r.getBody(), QRTriggerResponse.class);
+                                    return converter.toResult(tr, r.getBody());
+                                });
     }
 
     @Override
     public CompletionStage<Void> secondLeg(HashSigningRequest request) {
-        return CompletableFuture.runAsync(()->logger.info("Does nothing"));
+        String jsonString = toJsonString(request);
+        logger.info("time:" +LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+        logger.info("second leg: url -" + HASH_SIGNING_ENPOINT);
+        logger.info("data: " + jsonString);
+        return CompletableFuture.supplyAsync(
+                () -> webClient.post(HASH_SIGNING_ENPOINT, getAuthHeader(), headers(jsonString), jsonString))
+                                .thenAccept((r) -> {
+                                    if (hasErrors(r)) {
+                                        logger.error(
+                                                String.format("Second leg. Error: code %d info: %s",
+                                                              r.getStatus(),
+                                                              r.getBody()));
+                                        throw new NDIServiceException("Second leg. Error: " + r.getBody());
+                                    }
+                                    logger.info(LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                                    logger.info("success. s:" + r.getStatus() + " body:" + r.getBody());
+                                });
     }
 
 }
