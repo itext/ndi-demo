@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.cert.Certificate;
@@ -107,10 +108,15 @@ public class ITextDeferredSigningHelper {
      * @throws IOException
      * @throws GeneralSecurityException
      */
-    public byte[] completeSigning(SecondStepInput secondStepInput) throws IOException, GeneralSecurityException {
+    public byte[] completeSigning(SecondStepInput secondStepInput)
+            throws IOException, GeneralSecurityException, NoSuchFieldException, IllegalAccessException {
 
         PdfPKCS7 sgn = createPkcs7Container(digest, secondStepInput.getCertificateChain());
         sgn.setExternalDigest(secondStepInput.getSignedHash(), null, encryptionAlgorithm);
+        //fix oid to pass etsi validation
+        Field f1 = sgn.getClass().getDeclaredField("digestEncryptionAlgorithmOid");
+        f1.setAccessible(true);
+        f1.set(sgn, "1.2.840.10045.4.3.2");
         byte[] encodedPKCS7 = sgn.getEncodedPKCS7(secondStepInput.getDocumentDigest(),
                                                   cryptoStandard,
                                                   tsaClient,
@@ -127,6 +133,7 @@ public class ITextDeferredSigningHelper {
         return signedOutput.toByteArray();
 
     }
+
 
     public PdfPKCS7 createPkcs7Container(IExternalDigest digest, Certificate[] certificates) {
         try {

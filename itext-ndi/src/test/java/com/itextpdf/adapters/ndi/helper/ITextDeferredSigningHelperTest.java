@@ -128,7 +128,8 @@ public class ITextDeferredSigningHelperTest {
     @Test
 
     public void testSigning()
-            throws GeneralSecurityException, IOException, URISyntaxException {
+            throws GeneralSecurityException, IOException, URISyntaxException, NoSuchFieldException,
+                   IllegalAccessException {
 
         final String fieldName = "Signature1";
 
@@ -150,9 +151,9 @@ public class ITextDeferredSigningHelperTest {
 
 
         byte[] signedFile = helper.completeSigning(secondStepInput);
-        storeInFile(signedFile, "signed.pdf");
+        storeInFile(signedFile, "signed_1.pdf");
 
-        PdfDocument   document = new PdfDocument(new PdfReader(destRoot + "signed.pdf"));
+        PdfDocument   document = new PdfDocument(new PdfReader(destRoot + "signed_1.pdf"));
         SignatureUtil util     = new SignatureUtil(document);
 
         Assert.assertTrue(util.signatureCoversWholeDocument(fieldName));

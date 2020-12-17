@@ -45,8 +45,9 @@ server.pid
 *.iml
 /dist/
 .cache
-/itext-ndi/src/test/resources/ltv_signed.pdf
-/itext-ndi/src/test/resources/signed.pdf
-/itext-ndi/src/test/resources/prepared.pdf
+itext-ndi/src/test/resources/ltv_signed.pdf
+itext-ndi/src/test/resources/signed.pdf
+itext-ndi/src/test/resources/signed_1.pdf
+itext-ndi/src/test/resources/prepared.pdf
 
 # End of https://www.gitignore.io/api/java,playframework

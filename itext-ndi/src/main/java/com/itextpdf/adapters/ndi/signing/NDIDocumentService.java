@@ -240,7 +240,7 @@ public class NDIDocumentService {
             aDocument.setResult(signedDocument);
             return aDocument;
 
-        } catch (IOException | GeneralSecurityException  e) {
+        } catch (IOException | GeneralSecurityException | NoSuchFieldException | IllegalAccessException e) {
             final String errorMessage = String.format("Signing process failure on the final step. SignRef: %s",
                                                       aDocument.getSignatureRef());
             logger.error(errorMessage, e);
