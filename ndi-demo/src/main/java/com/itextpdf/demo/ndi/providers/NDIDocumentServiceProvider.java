@@ -1,6 +1,6 @@
 package com.itextpdf.demo.ndi.providers;
 
-import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.api.IDSSApiClient;
 import com.itextpdf.adapters.ndi.signing.QrCodeGenerator;
 import com.itextpdf.adapters.ndi.signing.CallbackValidator;
 import com.itextpdf.adapters.ndi.signing.NDIDocumentService;
@@ -18,7 +18,7 @@ import javax.inject.Singleton;
 public class NDIDocumentServiceProvider implements Provider<NDIDocumentService> {
 
 
-    private final IHssApiClient ndiClient;
+    private final IDSSApiClient ndiClient;
 
     private final IChallengeCodeGenerator codeGenerator;
 
@@ -35,7 +35,7 @@ public class NDIDocumentServiceProvider implements Provider<NDIDocumentService> 
     private final IOcspClient ocspClient;
 
     @Inject
-    public NDIDocumentServiceProvider(IHssApiClient ndiClient,
+    public NDIDocumentServiceProvider(IDSSApiClient ndiClient,
                                       IChallengeCodeGenerator codeGenerator,
                                       INonceGenerator nonceGenerator,
                                       ITSAClient tsaClient,

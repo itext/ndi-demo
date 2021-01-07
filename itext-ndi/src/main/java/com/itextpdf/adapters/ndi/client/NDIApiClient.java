@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.api.IDSSApiClient;
 import com.itextpdf.adapters.ndi.client.converters.ApiModelsConverter;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
 import com.itextpdf.adapters.ndi.client.http.HttpResponse;
@@ -33,7 +33,7 @@ import static java.net.HttpURLConnection.HTTP_OK;
 /**
  * API client. Used underneath the {@see SimpleHttpClient } for web requests.
  */
-public class NDIApiClient implements IHssApiClient {
+public class NDIApiClient implements IDSSApiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NDIApiClient.class);
 
@@ -125,10 +125,11 @@ public class NDIApiClient implements IHssApiClient {
     public CompletionStage<Void> secondLeg(HashSigningRequest request) {
         String jsonString = toJsonString(request);
         logger.info("time:" +LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-        logger.info("second leg: url -" + HASH_SIGNING_ENPOINT);
+        logger.info("second leg: url -" + getHashSigningEndpointUrl(request.getSignRef()));
         logger.info("data: " + jsonString);
         return CompletableFuture.supplyAsync(
-                () -> webClient.post(HASH_SIGNING_ENPOINT, getAuthHeader(), headers(jsonString), jsonString))
+                () -> webClient.post(getHashSigningEndpointUrl(request.getSignRef()),
+                                     getAuthHeader(), headers(jsonString), jsonString))
                                 .thenAccept((r) -> {
                                     if (hasErrors(r)) {
                                         logger.error(

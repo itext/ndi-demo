@@ -1,6 +1,6 @@
 package com.itextpdf.adapters.ndi.signing;
 
-import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.api.IDSSApiClient;
 import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
 import com.itextpdf.adapters.ndi.client.models.callback.CallbackErrorMessage;
 import com.itextpdf.adapters.ndi.client.models.callback.CallbackFirstLegMessage;
@@ -45,7 +45,7 @@ public class NDIDocumentService {
 
     private final static Logger logger = LoggerFactory.getLogger(NDIDocumentService.class);
 
-    private final IHssApiClient ndiApi;
+    private final IDSSApiClient ndiApi;
 
     private final IChallengeCodeGenerator challengeCodeGenerator;
 
@@ -61,7 +61,7 @@ public class NDIDocumentService {
 
     private NDIDocumentConverter ndiDocumentConverter = new NDIDocumentConverter();
 
-    public NDIDocumentService(IHssApiClient ndiApi,
+    public NDIDocumentService(IDSSApiClient ndiApi,
                               IChallengeCodeGenerator challengeCodeGenerator,
                               INonceGenerator nonceGenerator,
                               ITSAClient tsaClient,

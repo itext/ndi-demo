@@ -6,7 +6,7 @@ import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
 import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
 import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParams;
 import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
-import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.api.IDSSApiClient;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
 import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
@@ -24,7 +24,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.concurrent.CompletionStage;
 
 /** Ndi client implementation based on WSClient */
-public class NDIClientWSImpl implements IHssApiClient {
+public class NDIClientWSImpl implements IDSSApiClient {
 
     private static final Logger logger = LoggerFactory.getLogger(NDIClientWSImpl.class);
 
@@ -78,10 +78,10 @@ public class NDIClientWSImpl implements IHssApiClient {
     @Override
     public CompletionStage<Void> secondLeg(HashSigningRequest request) {
         JsonNode node = Json.toJson(request);
-        logger.info("second leg: url -" + HASH_SIGNING_ENPOINT);
+        logger.info("second leg: url -" + HASH_SIGNING_ENPOINT_TEMPLATE);
         logger.info("time:" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         logger.info("data: " + node.toString());
-        return post(HASH_SIGNING_ENPOINT, node)
+        return post(HASH_SIGNING_ENPOINT_TEMPLATE, node)
                 .thenAccept((r) -> {
                     if (hasErrors(r)) {
                         logger.error(String.format("Second leg. Error message received. Code %d info: %s",

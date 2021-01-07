@@ -3,7 +3,7 @@ package com.itextpdf.demo.ndi.modules;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import com.itextpdf.adapters.ndi.client.api.IHssApiClient;
+import com.itextpdf.adapters.ndi.client.api.IDSSApiClient;
 import com.itextpdf.adapters.ndi.client.http.IHttpClient;
 import com.itextpdf.adapters.ndi.client.http.SimpleHttpClient;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
@@ -25,7 +25,6 @@ import com.itextpdf.signatures.ITSAClient;
 import org.slf4j.LoggerFactory;
 import play.Configuration;
 import play.Environment;
-import play.Logger;
 
 import java.util.Optional;
 
@@ -49,8 +48,8 @@ public class ApplicationModule extends AbstractModule {
         bind(INDIInstanceConfig.class).to(NDIInstanceConfig.class);
         bind(IHttpClient.class).to(SimpleHttpClient.class).asEagerSingleton();
 
-//        bind(IHssApiClient.class).toProvider(NDIApiServiceProvider.class).asEagerSingleton();
-                bind(IHssApiClient.class).toProvider(WSClientForNDIProvider.class);
+//        bind(IDSSApiClient.class).toProvider(NDIApiServiceProvider.class).asEagerSingleton();
+                bind(IDSSApiClient.class).toProvider(WSClientForNDIProvider.class);
 
         bind(CallbackValidator.class).toProvider(CallbackValidatorProvider.class);
         bind(INotificationTokenGenerator.class).toProvider(ClientNotificationTokenGeneratorProvider.class);

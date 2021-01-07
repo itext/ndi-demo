@@ -5,9 +5,9 @@ import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
 
 import java.util.concurrent.CompletionStage;
 
-/** Interface caller  for NDI hss api.**/
+/** Interface caller  for NDI DSS api.**/
 
-public interface IHssApiClient {
+public interface IDSSApiClient {
 
     String HSS_DOMAIN = "https://api.sandbox.ndi.gov.sg/api/v1/hss/signatures";
 
@@ -23,12 +23,12 @@ public interface IHssApiClient {
      *
      *  "client_id=&client_notification_token=&response_type=&nonce="
      */
-    String QR_AUTH_ENDPOINT = HSS_DOMAIN + "/sign-ref";
+    String QR_AUTH_ENDPOINT = HSS_DOMAIN + "/doc-signing-sessions";
     /**
      * This is the endpoint called by RP/DSP to trigger notification on the user's form-factor to solicit user
      * consent for signing on a document hash. This endpoint is applicable to both QR and PN flow.
      */
-    String HASH_SIGNING_ENPOINT = HSS_DOMAIN + "/sign-hash";
+    String HASH_SIGNING_ENPOINT_TEMPLATE = HSS_DOMAIN + "/doc-signing-sessions/%s/hash";
 
 
 
@@ -46,4 +46,8 @@ public interface IHssApiClient {
      * @return
      */
     CompletionStage<Void> secondLeg(HashSigningRequest request);
+
+    default String getHashSigningEndpointUrl(String aSignRef){
+        return String.format(HASH_SIGNING_ENPOINT_TEMPLATE, aSignRef);
+    }
 }
