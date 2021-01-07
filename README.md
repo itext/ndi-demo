@@ -4,8 +4,8 @@
 Based on iText 7.1.11
 
 Uses the Hash Signing Service (HSS) from the NDI Sandbox (https://demo.sandbox.ndi.gov.sg/home) for signing PDF documents.
-The signature is PAdES-LT compliant.
-_**Modification of a signature appearance is not yet available**_
+The docHashSignature is PAdES-LT compliant.
+_**Modification of a docHashSignature appearance is not yet available**_
 
 This repo contains two Maven artifacts:
 

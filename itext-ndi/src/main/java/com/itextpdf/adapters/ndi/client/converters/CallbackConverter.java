@@ -57,14 +57,14 @@ public class CallbackConverter {
         if (!opData.isPresent()) {
             opData = opUserCert.map(userCert -> {
                 CallbackFirstLegMessage firstLegData = new CallbackFirstLegMessage();
-                firstLegData.setUsrCert(opUserCert.get());
+                firstLegData.setUserCert(opUserCert.get());
                 return firstLegData;
             });
         }
         if (!opData.isPresent()) {
             opData = opSignature.map(signedHash -> {
                 CallbackSecondLegMessage sl = new CallbackSecondLegMessage();
-                sl.setSignature(opSignature.get());
+                sl.setDocHashSignature(opSignature.get());
                 return sl;
             });
         }

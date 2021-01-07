@@ -155,7 +155,7 @@ public class NDIDocumentService {
     private CompletionStage<NDIDocument> processSecondCallback(NDIDocument aDocument,
                                                                CallbackSecondLegMessage aMessage) {
         return CompletableFuture.supplyAsync(() -> aDocument)
-                                .thenApply((d) -> this.completeSigning(d, aMessage.getSignature()))
+                                .thenApply((d) -> this.completeSigning(d, aMessage.getDocHashSignature()))
                                 //add ltv optionally
                                 .thenApply(this::addLTVToResult)
                                 .thenApply(this::addDocumentTimestampToResult)
@@ -171,7 +171,7 @@ public class NDIDocumentService {
                                     logger.info("document");
                                     return d;
                                 })
-                                .thenApply((d) -> this.setupCertificate(d, aMessage.getUsrCert()))
+                                .thenApply((d) -> this.setupCertificate(d, aMessage.getUserCert()))
                                 //populate oscp - optionally
                                 //.thenApplyAsync(this::setupOCSPifAvailible)
 
