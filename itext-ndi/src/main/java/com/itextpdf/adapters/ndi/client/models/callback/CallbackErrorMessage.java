@@ -8,32 +8,36 @@ import com.itextpdf.adapters.ndi.client.models.callback.common.ErrorTypes;
  * Contains an error description. It appears in the case when any leg was not completed successfully.
  *
  * https://www.ndi-api.gov.sg/assets/lib/trusted-services/ds/specs/hsv2.0.0.yaml.html#operation/clientNotificationEndpoint
- *  {
- * "error": "invalid_request",
- * "error_description": "user_cancelled",
- * "sign_ref": "string",
- * "nonce": "string"
+ * {
+ *   "sign_ref" : "9a1804b2-c246-43b7-a399-4139990da2a2",
+ *   "request_type" : "error",
+ *   "error_description" : "DSS has failed to send the user cert to DSAP.",
+ *   "ndi_request_id" : "d20b23e9-adb9-4a33-b820-c77a67ef4fdc",
+ *   "exp" : 1609907094,
+ *   "error" : "client_notification_failed",
+ *   "iat" : 1609906974
  * }
+ *
  */
 public final class CallbackErrorMessage extends NdiCallbackMessage {
 
-    private ErrorTypes error;
+    private String error;
 
-    private ErrorSubtypes errorDescription;
+    private String errorDescription;
 
-    public ErrorTypes getError() {
+    public String getError() {
         return error;
     }
 
-    public void setError(ErrorTypes error) {
+    public void setError(String error) {
         this.error = error;
     }
 
-    public ErrorSubtypes getErrorDescription() {
+    public String getErrorDescription() {
         return errorDescription;
     }
 
-    public void setErrorDescription(ErrorSubtypes errorDescription) {
+    public void setErrorDescription(String errorDescription) {
         this.errorDescription = errorDescription;
     }
 

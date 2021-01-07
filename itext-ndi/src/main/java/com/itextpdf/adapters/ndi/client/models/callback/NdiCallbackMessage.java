@@ -9,16 +9,7 @@ public abstract class NdiCallbackMessage {
 
     private String signRef;
 
-    private String nonce;
 
-
-    public String getNonce() {
-        return nonce;
-    }
-
-    public void setNonce(String nonce) {
-        this.nonce = nonce;
-    }
 
     public String getSignRef() {
         return signRef;
