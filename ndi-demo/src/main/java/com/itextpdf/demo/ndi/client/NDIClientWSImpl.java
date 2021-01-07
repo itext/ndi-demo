@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.itextpdf.adapters.ndi.client.converters.ApiModelsConverter;
 import com.itextpdf.adapters.ndi.client.models.HashSigningRequest;
 import com.itextpdf.adapters.ndi.client.models.InitCallQrResult;
-import com.itextpdf.adapters.ndi.client.models.QRTriggerQueryParams;
-import com.itextpdf.adapters.ndi.client.models.QRTriggerResponse;
+import com.itextpdf.adapters.ndi.client.models.SignInitRequest;
+import com.itextpdf.adapters.ndi.client.models.SignInitResponse;
 import com.itextpdf.adapters.ndi.client.api.IDSSApiClient;
 import com.itextpdf.adapters.ndi.client.exceptions.NDIServiceException;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
@@ -51,14 +51,11 @@ public class NDIClientWSImpl implements IDSSApiClient {
     @Override
     public CompletionStage<InitCallQrResult> firstLeg(String aNonce) {
 
-        QRTriggerQueryParams requestParams = converter.toQRQueryParam(ndiConfig.getClientId(),
-                                                                      tokenProvider.getToken(), aNonce);
-        WSRequest wsRequest = client.url(QR_AUTH_ENDPOINT)
-                                    .setAuth(ndiConfig.getClientId(), ndiConfig.getClientSecret())
-                                    .setQueryString(requestParams.toQueryString());
+        SignInitRequest request = new SignInitRequest(tokenProvider.getToken());
+        JsonNode jsonNode = Json.toJson(request);
         logger.info("time:" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-        logger.info("request" + wsRequest.getUrl() + "?" + requestParams.toQueryString());
-        return wsRequest.get()
+        logger.info("request" + QR_AUTH_ENDPOINT);
+        return post(QR_AUTH_ENDPOINT, jsonNode)
                         .thenApply(r -> {
                             if (this.hasErrors(r)) {
                                 logger.error(QR_AUTH_ENDPOINT);
@@ -69,9 +66,9 @@ public class NDIClientWSImpl implements IDSSApiClient {
                             }
                             logger.info("answ:" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
 
-                            QRTriggerResponse tr     = Json.fromJson(r.asJson(), QRTriggerResponse.class);
-                            String            qrData = r.asJson().toString();
-                            return converter.toResult(tr, qrData);
+                            SignInitResponse tr     = Json.fromJson(r.asJson(), SignInitResponse.class);
+                            String           qrData = r.asJson().toString();
+                            return converter.toResult(tr);
                         });
     }
 
@@ -81,7 +78,7 @@ public class NDIClientWSImpl implements IDSSApiClient {
         logger.info("second leg: url -" + HASH_SIGNING_ENPOINT_TEMPLATE);
         logger.info("time:" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
         logger.info("data: " + node.toString());
-        return post(HASH_SIGNING_ENPOINT_TEMPLATE, node)
+        return post(getHashSigningEndpointUrl(request.getSignRef()), node)
                 .thenAccept((r) -> {
                     if (hasErrors(r)) {
                         logger.error(String.format("Second leg. Error message received. Code %d info: %s",

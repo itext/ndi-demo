@@ -144,8 +144,8 @@ public class NDIDocumentService {
         if (aMessage instanceof CallbackErrorMessage) {
             CallbackErrorMessage errorData = (CallbackErrorMessage) aMessage;
             ContainerError       e         = new ContainerError();
-            e.setError(errorData.getError().getValue());
-            e.setErrorDescription(errorData.getErrorDescription().getType());
+            e.setError(errorData.getError());
+            e.setErrorDescription(errorData.getErrorDescription());
             aDocument.setError(e);
             aDocument.setStatus(SigningStatus.TERMINATED);
         }

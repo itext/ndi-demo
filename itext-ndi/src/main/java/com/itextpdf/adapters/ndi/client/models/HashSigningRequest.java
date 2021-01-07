@@ -31,7 +31,6 @@ public class HashSigningRequest {
 
     /**
      * The identifier of the Document Signing Session.
-     * This is only applicable if the first-leg of the PN has been executed previously.
      */
     private String signRef;
 
