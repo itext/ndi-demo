@@ -1,7 +1,10 @@
 package com.itextpdf.demo.ndi.sign.services;
 
 import com.codepoetics.ambivalence.Either;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.itextpdf.adapters.ndi.client.converters.CallbackConverter;
+import com.itextpdf.adapters.ndi.client.models.callback.CallbackFirstLegMessage;
 import com.itextpdf.adapters.ndi.client.models.callback.NdiCallbackMessage;
 import com.itextpdf.adapters.ndi.helper.containers.exceptions.CallbackValidationException;
 import com.itextpdf.adapters.ndi.signing.CallbackValidator;
@@ -14,10 +17,15 @@ import com.itextpdf.demo.ndi.sign.models.NdiDocumentWrapper;
 import com.itextpdf.demo.ndi.sign.models.output.InitializationResult;
 import com.itextpdf.demo.ndi.sign.models.output.PresignResult;
 import com.itextpdf.demo.ndi.sign.repositories.NDIDocumentWrapperRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.api.libs.json.Json;
 
 import javax.inject.Inject;
+import javax.xml.bind.DatatypeConverter;
 import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -70,8 +78,14 @@ public class SigningService implements ISigningService {
     }
 
     @Override
-    public CompletionStage<Void> processCallback(Map<String, String[]> aQueryParams) {
-        NdiCallbackMessage data = converter.convertParamsToCallbackMessage(aQueryParams);
+    public CompletionStage<Void> processCallback(JsonNode requestBody) {
+
+        String token  = requestBody.get("token").asText();
+        Jwt   claims = Jwts.parser().parse(token);
+
+
+
+        NdiCallbackMessage data = new CallbackFirstLegMessage();//= converter.convertParamsToCallbackMessage(aQueryParams);
 
         try {
             try {

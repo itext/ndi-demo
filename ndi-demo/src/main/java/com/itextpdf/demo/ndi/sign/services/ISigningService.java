@@ -1,6 +1,7 @@
 package com.itextpdf.demo.ndi.sign.services;
 
 import com.codepoetics.ambivalence.Either;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.itextpdf.adapters.ndi.signing.models.ContainerError;
 import com.itextpdf.demo.ndi.files.PdfFile;
 import com.itextpdf.demo.ndi.sign.models.output.InitializationResult;
@@ -17,5 +18,5 @@ public interface ISigningService {
 
     CompletionStage<Either<InitializationResult, ContainerError>> createContainer(PdfFile fileToSign);
 
-    CompletionStage<Void> processCallback(Map<String, String[]> aQueryParams);
+    CompletionStage<Void> processCallback(JsonNode requestBody);
 }

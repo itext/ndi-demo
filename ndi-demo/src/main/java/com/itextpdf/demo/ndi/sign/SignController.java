@@ -1,5 +1,6 @@
 package com.itextpdf.demo.ndi.sign;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.itextpdf.adapters.ndi.signing.models.ContainerError;
 import com.itextpdf.demo.ndi.auth.IAuthService;
 import com.itextpdf.demo.ndi.files.FileService;
@@ -68,18 +69,13 @@ public class SignController extends Controller {
     }
 
     /**
-     * Serves ndi callbacks. For now it is a GET request
-     *
-     * @return
+     * Serves ndi callbacks. Expect to get JWT
      */
-    public CompletionStage<Result> signCallback() {
-        final Map<String, String[]> queryEntries = request().queryString();
-        String s = queryEntries.entrySet()
-                               .stream()
-                               .map(e -> e.getKey() + String.join(",", e.getValue()))
-                               .collect(Collectors.joining(", "));
-        logger.info("Callback received: " + s);
-        return iSigningService.processCallback(queryEntries)
+
+    public CompletionStage<Result> signJWTCallback() {
+        JsonNode jsonBody = request().body().asJson();
+
+        return iSigningService.processCallback(jsonBody)
                               .thenApply((a) -> (Result) Results.ok())
                               .exceptionally((t) -> {
                                   logger.error("Bad response: " + t.getMessage());
