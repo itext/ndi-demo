@@ -25,7 +25,7 @@ public class CallbackConverter {
                     .map(
                             o -> {
                                 o.setSignRef(opSignRef.get());
-                                o.setNonce(opNonce.get());
+//                                o.setNonce(opNonce.get());
                                 return o;
                             })
                     .orElseThrow(() -> new RuntimeException("The received callback has not be recognized"));
@@ -47,10 +47,8 @@ public class CallbackConverter {
         Optional<NdiCallbackMessage> opData = opError.map(e -> {
             CallbackErrorMessage errorData = new CallbackErrorMessage();
             extractValue(aQueryParams, "error")
-                    .map(ErrorTypes::findByValue)
                     .ifPresent(errorData::setError);
             extractValue(aQueryParams, "error_description")
-                    .map(ErrorSubtypes::findByValue)
                     .ifPresent(errorData::setErrorDescription);
             return errorData;
         });

@@ -1,8 +1,8 @@
 package com.itextpdf.adapters.ndi.signing;
 
-import com.itextpdf.adapters.ndi.helper.containers.exceptions.CallbackValidationException;
 import com.itextpdf.adapters.ndi.client.models.callback.CallbackSecondLegMessage;
 import com.itextpdf.adapters.ndi.client.models.callback.NdiCallbackMessage;
+import com.itextpdf.adapters.ndi.helper.containers.exceptions.CallbackValidationException;
 import com.itextpdf.adapters.ndi.signing.models.ExpectedCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class CallbackValidator {
             return;
         }
         waitingList.stream()
-                   .filter(c -> c.getNonce().equals(aCallback.getNonce()))
+                   //                   .filter(c -> c.getNonce().equals(aCallback.getNonce()))
                    .filter(c -> c.getSignRef().equals(aCallback.getSignRef()))
                    .findFirst()
                    .map(this.waitingList::remove)
@@ -53,10 +53,12 @@ public class CallbackValidator {
 
     private CallbackValidationException toException(NdiCallbackMessage aNdiMessage) {
         final String message = String.format(
-                "Unexpected callback message. The nonce %s and signRef %s pair is not registered",
-                aNdiMessage.getNonce(), aNdiMessage.getSignRef()
+                "Unexpected callback message. SignRef %s is not registered"
+                , aNdiMessage.getSignRef()
         );
-        logger.error(message+waitingList.stream().map(c->c.getNonce()+" "+c.getSignRef()).collect(Collectors.joining()));
+        logger.error(message + waitingList.stream()
+                                          .map(c -> c.getNonce() + " " + c.getSignRef())
+                                          .collect(Collectors.joining()));
         return new CallbackValidationException(
                 message);
     }

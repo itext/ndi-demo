@@ -1,12 +1,12 @@
 package com.itextpdf.adapters.ndi.signing;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.Claim;
 import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.DefaultClaims;
-import io.jsonwebtoken.impl.crypto.RsaProvider;
 
+
+import java.io.UnsupportedEncodingException;
 import java.security.Key;
 import java.security.KeyPair;
 import java.util.Date;
@@ -19,13 +19,21 @@ public class ClientNotificationTokenGenerator implements INotificationTokenGener
     @Override
     public synchronized String getToken() {
         if (clientNotificationToken == null || clientNotificationToken.isEmpty()) {
-            KeyPair pair   = RsaProvider.generateKeyPair();
-            Key     key    = pair.getPrivate();
-            Claims  claims = new DefaultClaims().setSubject("itextNdiSign").setIssuedAt(new Date());
-            clientNotificationToken = Jwts.builder()
-                                          .setClaims(claims)
-                                          .signWith(SignatureAlgorithm.RS256, key)
-                                          .compact();
+            Algorithm algorithm = null;
+            try {
+                algorithm = Algorithm.HMAC256("secret");
+                 clientNotificationToken = JWT.create()
+                                  .withIssuer("itext")
+                                  .withSubject("itextNdiSign")
+                                  .withIssuedAt(new Date())
+                                  .sign(algorithm);
+
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+
+
         }
         return clientNotificationToken;
 
