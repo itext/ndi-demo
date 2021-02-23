@@ -9,7 +9,7 @@ import java.util.concurrent.CompletionStage;
 
 public interface IDSSApiClient {
 
-    String HSS_DOMAIN = "https://api.sandbox.ndi.gov.sg/api/v1/hss/signatures";
+    String HSS_DOMAIN = "https://stg-id.singpass.gov.sg:8443";
 
 
 

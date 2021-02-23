@@ -45,6 +45,7 @@ POST    /ndi/sign/:signRef/result    com.itextpdf.demo.ndi.sign.SignController.r
 
 #service route serving NDI Api callbacks
 #GET    /api/ndi/callback             com.itextpdf.demo.ndi.sign.SignController.signCallback()
+POST    /api/ndi/callback             com.itextpdf.demo.ndi.sign.SignController.signJWTCallback()
 
 
 

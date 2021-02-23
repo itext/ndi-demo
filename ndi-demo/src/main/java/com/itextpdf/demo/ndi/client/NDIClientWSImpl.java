@@ -46,6 +46,7 @@ public class NDIClientWSImpl implements IDSSApiClient {
         this.ndiConfig = config;
         this.client = client;
         this.tokenProvider = tokenProvider;
+        throw new RuntimeException("need to be checked");
     }
 
     @Override

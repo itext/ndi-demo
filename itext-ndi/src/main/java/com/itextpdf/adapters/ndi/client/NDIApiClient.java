@@ -16,10 +16,17 @@ import com.itextpdf.adapters.ndi.client.models.SignInitResponse;
 import com.itextpdf.adapters.ndi.config.INDIInstanceConfig;
 import com.itextpdf.adapters.ndi.signing.api.INotificationTokenGenerator;
 import com.itextpdf.kernel.xmp.impl.Base64;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.*;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -63,6 +70,45 @@ public class NDIApiClient implements IDSSApiClient {
         this.tokenProvider = tokenProvider;
     }
 
+    public void init() {
+        try {
+            Security.addProvider(new BouncyCastleProvider());
+            InputStream trustStream   = new FileInputStream(ndiConfig.sslKeyStorePath());
+            char[]      trustPassword = ndiConfig.getKeyPassword().toCharArray();
+            KeyStore    trustStore    = KeyStore.getInstance(KeyStore.getDefaultType());
+            trustStore.load(trustStream, trustPassword);
+
+
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(trustStore, trustPassword);
+            KeyManager[] kms = kmf.getKeyManagers();
+
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+
+                        public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+                                throws CertificateException {
+                        }
+
+                        public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+                                throws CertificateException {
+                        }
+
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+                    }
+            };
+
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(kms, trustAllCerts, null);
+            SSLContext.setDefault(sslContext);
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException |
+                UnrecoverableKeyException | KeyManagementException ex) {
+            throw new RuntimeException(ex);
+        }
+
+    }
     private String getAuthHeader() {
         return "Basic " + Base64.encode(String.format("%s:%s", ndiConfig.getClientId(), ndiConfig.getClientSecret()));
     }

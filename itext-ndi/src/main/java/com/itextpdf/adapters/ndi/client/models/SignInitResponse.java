@@ -28,14 +28,14 @@ public class SignInitResponse {
      */
     private String signRef;
 
-    private NdiQRCode ndiQrCode;
+    private NdiQRCode qrCode;
 
-    public NdiQRCode getNdiQrCode() {
-        return ndiQrCode;
+    public NdiQRCode getQrCode() {
+        return qrCode;
     }
 
-    public void setNdiQrCode(NdiQRCode ndiQrCode) {
-        this.ndiQrCode = ndiQrCode;
+    public void setQrCode(NdiQRCode qrCode) {
+        this.qrCode = qrCode;
     }
 
     public Long getExpiresAt() {

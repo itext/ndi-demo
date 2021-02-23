@@ -1,5 +1,7 @@
 package com.itextpdf.demo.ndi.sign.services;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.codepoetics.ambivalence.Either;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,12 +19,9 @@ import com.itextpdf.demo.ndi.sign.models.NdiDocumentWrapper;
 import com.itextpdf.demo.ndi.sign.models.output.InitializationResult;
 import com.itextpdf.demo.ndi.sign.models.output.PresignResult;
 import com.itextpdf.demo.ndi.sign.repositories.NDIDocumentWrapperRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.Jwts;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.api.libs.json.Json;
 
 import javax.inject.Inject;
 import javax.xml.bind.DatatypeConverter;
@@ -80,8 +79,9 @@ public class SigningService implements ISigningService {
     @Override
     public CompletionStage<Void> processCallback(JsonNode requestBody) {
 
-        String token  = requestBody.get("token").asText();
-        Jwt   claims = Jwts.parser().parse(token);
+        String     token = requestBody.get("token").asText();
+
+
 
 
 

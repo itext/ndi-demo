@@ -74,7 +74,7 @@ public class SignController extends Controller {
 
     public CompletionStage<Result> signJWTCallback() {
         JsonNode jsonBody = request().body().asJson();
-
+logger.info("callback "+jsonBody.toString());
         return iSigningService.processCallback(jsonBody)
                               .thenApply((a) -> (Result) Results.ok())
                               .exceptionally((t) -> {

@@ -18,7 +18,7 @@ public class ApiModelsConverter {
         InitCallQrResult result = new InitCallQrResult();
         result.setSignRef(response.getSignRef());
         result.setExpiresAt(toLocalDateTime(response.getExpiresAt()));
-        result.setQrCodeData(response.getNdiQrCode().getPayload());
+        result.setQrCodeData(response.getQrCode().getPayload());
         return result;
     }
 

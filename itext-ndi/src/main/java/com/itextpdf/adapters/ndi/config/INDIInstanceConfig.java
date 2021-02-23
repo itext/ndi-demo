@@ -11,4 +11,7 @@ public interface INDIInstanceConfig {
     String getClientSecret();
 
 
+    String getKeyPassword();
+
+    String sslKeyStorePath();
 }

@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import play.Configuration;
 import play.Environment;
 
+import java.io.File;
 import java.util.Optional;
 
 public class ApplicationModule extends AbstractModule {
@@ -48,8 +49,8 @@ public class ApplicationModule extends AbstractModule {
         bind(INDIInstanceConfig.class).to(NDIInstanceConfig.class);
         bind(IHttpClient.class).to(SimpleHttpClient.class).asEagerSingleton();
 
-//        bind(IDSSApiClient.class).toProvider(NDIApiServiceProvider.class).asEagerSingleton();
-                bind(IDSSApiClient.class).toProvider(WSClientForNDIProvider.class);
+        bind(IDSSApiClient.class).toProvider(NDIApiServiceProvider.class).asEagerSingleton();
+//                bind(IDSSApiClient.class).toProvider(WSClientForNDIProvider.class);
 
         bind(CallbackValidator.class).toProvider(CallbackValidatorProvider.class);
         bind(INotificationTokenGenerator.class).toProvider(ClientNotificationTokenGeneratorProvider.class);
@@ -74,7 +75,9 @@ public class ApplicationModule extends AbstractModule {
                                   .orElseThrow(() -> new ConfigurationError("ndi.client.id is not configured"));
         String clientSecret = Optional.ofNullable(configuration.getString("ndi.client.secret"))
                                       .orElseThrow(() -> new ConfigurationError("ndi.client.secret is not configured"));
-        return new NDIInstanceConfig(clientId, clientSecret);
+
+
+        return new NDIInstanceConfig(clientId, clientSecret, "conf/staging.jks", "123456");
 
     }
 

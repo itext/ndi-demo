@@ -19,6 +19,7 @@ public class SimpleHttpClient implements IHttpClient {
     private static final Logger logger = LoggerFactory.getLogger(SimpleHttpClient.class);
 
 
+
     @Override
     public HttpResponse get(String aUrl, String aAuthHeader) {
         HttpsURLConnection conn = null;

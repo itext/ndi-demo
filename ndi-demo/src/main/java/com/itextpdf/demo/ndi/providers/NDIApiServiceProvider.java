@@ -31,6 +31,8 @@ public class NDIApiServiceProvider implements Provider<NDIApiClient> {
     @Override
     public NDIApiClient get() {
 
-        return new NDIApiClient(config, notificationTokenGenerator, client);
+        NDIApiClient apiClient = new NDIApiClient(config, notificationTokenGenerator, client);
+        apiClient.init();
+        return apiClient;
     }
 }
